@@ -1,0 +1,19 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.              	.equ @, $000
+  2.              	.equ stack,$01A	; make a stack
+  3.              	
+  4.  000 02001A  	lds# stack
+  5.  001 08000A  	psh# 10
+  6.  002 080014  	psh# 20
+  7.  003 030000  	ldf# 0
+  8.              	
+  9.  004 003007  	lda ! first   ; first = 
+ 10.  005 003008  	lda ! second
+ 11.  006 FFFFFF  	hlt
+ 12.              
+ 13.  007 000000  first:	.word 0
+ 14.  008 000000  second: 	.word 0
+
+                     SYMBOL TABLE CONTENTS
+
+000007 = FIRST           000008 = SECOND          00001A = STACK           

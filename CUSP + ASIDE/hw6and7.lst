@@ -1,0 +1,312 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.              	.equ @,$000
+  2.              	.equ stack,$040
+  3.              	.equ old,$060
+  4.              	.equ new,$100
+  5.              	.equ rows,6
+  6.              	.equ cols,7
+  7.  000 020040  	lds# stack
+  8.  001 030000  	ldf# 0
+  9.  002 010FFF  	ldx# $FFF
+ 10.  003 080060  	psh# old
+ 11.  004 080006  	psh# rows
+ 12.  005 080007  	psh# cols
+ 13.  006 080100  	psh# new
+ 14.  007 412402  	jsr generation
+ 15.  008 120004  	ads# 4
+ 16.  009 FFFFFF  	hlt
+ 17.              
+ 18.              	.equ @,$060
+ 19.  060 000000  	.word 0
+ 20.  061 000000  	.word 0
+ 21.  062 000000  	.word 0
+ 22.  063 000000  	.word 0
+ 23.  064 000000  	.word 0
+ 24.  065 000000  	.word 0
+ 25.  066 000000  	.word 0
+ 26.              
+ 27.  067 000000  	.word 0
+ 28.  068 000000  	.word 0
+ 29.  069 000000  	.word 0
+ 30.  06A 000000  	.word 0
+ 31.  06B 000000  	.word 0
+ 32.  06C 000000  	.word 0
+ 33.  06D 000000  	.word 0
+ 34.              
+ 35.  06E 000000  	.word 0
+ 36.  06F 000001  	.word 1
+ 37.  070 000000  	.word 0
+ 38.  071 000001  	.word 1
+ 39.  072 000000  	.word 0
+ 40.  073 000000  	.word 0
+ 41.  074 000000  	.word 0
+ 42.              	
+ 43.  075 000000  	.word 0
+ 44.  076 000000  	.word 0
+ 45.  077 000001  	.word 1
+ 46.  078 000001  	.word 1
+ 47.  079 000000  	.word 0
+ 48.  07A 000000  	.word 0
+ 49.  07B 000000  	.word 0
+ 50.              
+ 51.  07C 000000  	.word 0
+ 52.  07D 000000  	.word 0
+ 53.  07E 000001  	.word 1
+ 54.  07F 000000  	.word 0
+ 55.  080 000000  	.word 0
+ 56.  081 000000  	.word 0
+ 57.  082 000000  	.word 0
+ 58.              
+ 59.  083 000000  	.word 0
+ 60.  084 000000  	.word 0
+ 61.  085 000000  	.word 0
+ 62.  086 000000  	.word 0
+ 63.  087 000000  	.word 0
+ 64.  088 000000  	.word 0
+ 65.  089 000000  	.word 0
+ 66.              	;;;;;;;;;;;;;
+ 67.              	;.word 0
+ 68.              	;.word 1
+ 69.              	;.word 1
+ 70.              	;.word 0
+ 71.              	;.word 1
+ 72.              	;.word 1
+ 73.              	;.word 1
+ 74.              	;.word 0
+ 75.              	;.word 0
+ 76.              	;.word 1
+ 77.              	;.word 0
+ 78.              	;.word 0
+ 79.              	;.word 1
+ 80.              	;.word 1
+ 81.              	;.word 1
+ 82.              	.equ @,$100
+ 83.  100 000000  	.blkw 15,0
+ 84.              
+ 85.              
+ 86.              ;main SR
+ 87.              
+ 88.              	.equ @,$400
+ 89.              	.equ total,1
+ 90.              	.equ newarr, 3
+ 91.              	.equ col, 4
+ 92.              	.equ row, 5
+ 93.              	.equ oldarr,6
+ 94.  400 000000  temp:	.word 0
+ 95.  401 000000  totaln:	.word 0
+ 96.  402 082401  generation:	psh totaln
+ 97.  403 FFF012  	pshf
+ 98.  404 FFF008  	tsf
+ 99.  405 110001  loop:	adx# 1
+100.  406 000000  	lda# 0
+101.  407 043001  	sta ! total
+102.  408 003005  	lda ! row
+103.  409 183004  	mul ! col
+104.  40A 042400  	sta temp
+105.  40B 212400  	cmx temp
+106.  40C 4B2460  	jge end
+107.              ;corners
+108.  40D 210000  	cmx# 0
+109.  40E 482463  	jeq TLC
+110.  40F 003004  	lda ! col
+111.  410 140001  	sba# 1
+112.  411 042400  	sta temp
+113.  412 212400  	cmx temp
+114.  413 48246B  	jeq TRC
+115.  414 003005  	lda ! row
+116.  415 183004  	mul ! col
+117.  416 143004  	sba ! col
+118.  417 042400  	sta temp
+119.  418 212400  	cmx temp
+120.  419 482475  	jeq BLC
+121.  41A 002400  	lda temp
+122.  41B 103004  	ada ! col
+123.  41C 140001  	sba# 1
+124.  41D 042400  	sta temp
+125.  41E 212400  	cmx temp
+126.  41F 48247D  	jeq BRC
+127.              ;sides
+128.  420 213004  	cmx ! col
+129.  421 4A2485  	jlt	top	 
+130.  422 003004  	lda ! col
+131.  423 140001  	sba# 1
+132.  424 042400  	sta temp
+133.  425 FFF003  	txa
+134.  426 1A3004  	mod ! col
+135.  427 202400  	cma temp
+136.  428 482491  	jeq right
+137.  429 003005  	lda ! row
+138.  42A 183004  	mul ! col
+139.  42B 143004  	sba ! col
+140.  42C 042400  	sta temp
+141.  42D 212400  	cmx temp
+142.  42E 4D249D  	jgt bot
+143.  42F FFF003  	txa
+144.  430 1A3004  	mod ! col
+145.  431 200000  	cma# 0
+146.  432 4824A9  	jeq left
+147.              ; everything else
+148.  433 150001  	sbx# 1
+149.  434 412457  	jsr compare
+150.  435 153004  	sbx ! col
+151.  436 412457  	jsr compare
+152.  437 110001  	adx# 1
+153.  438 412457  	jsr compare
+154.  439 110001  	adx# 1
+155.  43A 412457  	jsr compare
+156.  43B 113004  	adx ! col
+157.  43C 412457  	jsr compare
+158.  43D 113004  	adx ! col
+159.  43E 412457  	jsr compare
+160.  43F 150001  	sbx# 1
+161.  440 412457  	jsr compare
+162.  441 150001  	sbx# 1
+163.  442 412457  	jsr compare
+164.  443 153004  	sbx ! col
+165.  444 110001  	adx# 1
+166.              
+167.  445 003001  write:	lda ! total
+168.  446 200001  	cma# 1
+169.  447 4C244E  	jle dies
+170.  448 200002  	cma# 2
+171.  449 482454  	jeq stays
+172.  44A 200003  	cma# 3
+173.  44B 482451  	jeq lives
+174.  44C 200003  	cma# 3
+175.  44D 4D244E  	jgt dies
+176.              
+177.  44E 000000  dies:	lda# 0
+178.  44F 049003  	sta& ! newarr
+179.  450 402405  	jmp loop
+180.  451 000001  lives:	lda# 1
+181.  452 049003  	sta& ! newarr
+182.  453 402405  	jmp loop
+183.  454 009006  stays:	lda& ! oldarr
+184.  455 049003  	sta& ! newarr
+185.  456 402405  	jmp loop
+186.              
+187.              
+188.              
+189.              	
+190.              compare:	.equ olda,8
+191.              	.equ tot,3
+192.  457 FFF012  	pshf
+193.  458 FFF008  	tsf
+194.  459 009008  	lda& ! olda
+195.  45A 200000  	cma# 0
+196.  45B 4D245E  	jgt addneighbour
+197.  45C FFF015  next:	popf
+198.  45D FFF040  	rtn
+199.              
+200.  45E 1B3003  addneighbour:	inc ! tot
+201.  45F 40245C  	jmp next
+202.              
+203.              end:
+204.  460 FFF015  	popf
+205.  461 120001  	ads# 1
+206.  462 FFF040  	rtn
+207.              ;top left corner when xr = 0
+208.  463 010001  TLC:	ldx# 1
+209.  464 412457  	jsr compare
+210.  465 113004  	adx ! col
+211.  466 412457  	jsr compare
+212.  467 150001  	sbx# 1
+213.  468 412457  	jsr compare
+214.  469 010000  	ldx# 0
+215.  46A 402445  	jmp write
+216.              
+217.  46B 150001  TRC:	sbx# 1
+218.  46C 412457  	jsr compare
+219.  46D 113004  	adx ! col
+220.  46E 412457  	jsr compare
+221.  46F 110001  	adx# 1
+222.  470 412457  	jsr compare
+223.  471 003004  	lda ! col
+224.  472 140001  	sba# 1
+225.  473 FFF000  	tax
+226.  474 402445  	jmp write
+227.              	
+228.              
+229.  475 153004  BLC:	sbx ! col
+230.  476 412457  	jsr compare
+231.  477 110001  	adx# 1
+232.  478 412457  	jsr compare
+233.  479 113004  	adx ! col
+234.  47A 412457  	jsr compare
+235.  47B 150001  	sbx# 1
+236.  47C 402445  	jmp write
+237.              
+238.  47D 150001  BRC:	sbx# 1
+239.  47E 412457  	jsr compare
+240.  47F 153004  	sbx ! col
+241.  480 412457  	jsr compare
+242.  481 110001  	adx# 1
+243.  482 412457  	jsr compare
+244.  483 113004  	adx ! col
+245.  484 402445  	jmp write
+246.              
+247.  485 150001  top:	sbx# 1
+248.  486 412457  	jsr compare
+249.  487 113004  	adx ! col
+250.  488 412457  	jsr compare
+251.  489 110001  	adx# 1
+252.  48A 412457  	jsr compare
+253.  48B 110001  	adx# 1
+254.  48C 412457  	jsr compare
+255.  48D 153004  	sbx ! col
+256.  48E 412457  	jsr compare
+257.  48F 150001  	sbx# 1
+258.  490 402445  	jmp write
+259.              
+260.  491 153004  right:	sbx ! col
+261.  492 412457  	jsr compare
+262.  493 150001  	sbx# 1
+263.  494 412457  	jsr compare
+264.  495 113004  	adx ! col
+265.  496 412457  	jsr compare
+266.  497 113004  	adx ! col
+267.  498 412457  	jsr compare
+268.  499 110001  	adx# 1
+269.  49A 412457  	jsr compare
+270.  49B 153004  	sbx ! col
+271.  49C 402445  	jmp write
+272.              
+273.  49D 150001  bot:	sbx# 1
+274.  49E 412457  	jsr compare
+275.  49F 153004  	sbx ! col
+276.  4A0 412457  	jsr compare
+277.  4A1 110001  	adx# 1
+278.  4A2 412457  	jsr compare
+279.  4A3 110001  	adx# 1
+280.  4A4 412457  	jsr compare
+281.  4A5 113004  	adx ! col
+282.  4A6 412457  	jsr compare
+283.  4A7 150001  	sbx# 1
+284.  4A8 402445  	jmp write
+285.              
+286.  4A9 153004  left:	sbx ! col
+287.  4AA 412457  	jsr compare
+288.  4AB 110001  	adx# 1
+289.  4AC 412457  	jsr compare
+290.  4AD 113004  	adx ! col
+291.  4AE 412457  	jsr compare
+292.  4AF 113004  	adx ! col
+293.  4B0 412457  	jsr compare
+294.  4B1 150001  	sbx# 1
+295.  4B2 412457  	jsr compare
+296.  4B3 153004  	sbx ! col
+297.  4B4 402445  	jmp write
+
+                     SYMBOL TABLE CONTENTS
+
+00045E = ADDNEIGHBOUR    000475 = BLC             00049D = BOT             
+00047D = BRC             000004 = COL             000007 = COLS            
+000457 = COMPARE         00044E = DIES            000460 = END             
+000402 = GENERATION      0004A9 = LEFT            000451 = LIVES           
+000405 = LOOP            000100 = NEW             000003 = NEWARR          
+00045C = NEXT            000060 = OLD             000008 = OLDA            
+000006 = OLDARR          000491 = RIGHT           000005 = ROW             
+000006 = ROWS            000040 = STACK           000454 = STAYS           
+000400 = TEMP            000463 = TLC             000485 = TOP             
+000003 = TOT             000001 = TOTAL           000401 = TOTALN          
+00046B = TRC             000445 = WRITE           

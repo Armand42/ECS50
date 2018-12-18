@@ -1,0 +1,63 @@
+; p3
+	.equ @, $000
+	
+	lda SIZE
+	sba# 1
+	sta LIMIT   ; set LIMIT = SIZE - 1
+
+LOOP1:	ldx I	; load I to XR 
+	cmx LIMIT  ; compare I with LIMIT
+	jge end   ; If I >= LIMIT then jumpt to end
+	lda I     ; load I to ACC
+	sta MIN_INDEX ; MIN_INDEX = I
+	ada# 1     ; ACC = ACC + 1
+	sta J       ; J = ACC = I + 1
+
+LOOP2:	lda J       ; ACC = J
+	cma LIMIT   ; compare J to LIMIT
+	jgt SWAP    ; If J > LIMIT jumpt to SWAP
+	ldx J       ; XR = J
+	lda+ ARRAY    ; ACC = ARRAY[XR]
+	ldx MIN_INDEX  ; XR = MIN_INDEX
+	cma+ ARRAY    ; compare ACC with ARRAY[XR]
+	jge INC_J     ;  if >=, jumpt to INC_J
+	lda J        ; load J into ACC
+	sta MIN_INDEX  ; store ACC to MIN_INDEX
+INC_J:	lda J          ; ACC = J
+	ada# 1         ; ACC = ACC + 1
+	sta J          ; J = ACC
+	jmp LOOP2     ; jumpt to loop 2
+
+SWAP:	ldx I        ; XR = I
+	lda+ ARRAY    ; ACC = ARRAY[XR]
+	sta TEMP      ; TEMP = ACC
+	ldx MIN_INDEX  ; XR = MIN_INDEX
+	lda+ ARRAY     ; ACC = ARRAY[XR]
+	ldx I          ; XR = I
+	sta+ ARRAY     ; ARRAY[XR] = ACC
+	lda TEMP       ; ACC = TEMP
+	ldx MIN_INDEX ; XR = MIN_INDEX
+	sta+ ARRAY     ; ARRAY[XR] = ACC
+	jmp INC_I      ; jumpt to INC_I
+
+INC_I:	lda I
+	ada# 1
+	sta I
+	jmp LOOP1
+
+end:	hlt
+
+LIMIT:	.word 0
+MIN_INDEX:	.word 0
+TEMP: 	.word 0
+I:	.word 0
+J:	.word 0
+
+	.equ	@,$100
+SIZE:	.word 6
+ARRAY:	.word 100
+	.word 74
+	.word -144
+	.word 10022
+	.word 657
+	.word -33

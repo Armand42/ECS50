@@ -1,0 +1,50 @@
+	.equ @, $000
+	lda SIZE
+	sba# 1
+	sta R
+
+LOOP:	lda L
+	cma R
+	jge END
+	lda L
+	ada R
+	div# 2
+	sta M
+	ldx M
+	lda+ SORTED
+	cma TARGET
+	jgt ELSE1
+	jlt ELSE2
+	lda# 1
+	sta OUTPUT
+	jmp END
+
+ELSE1:	lda M 
+	sba# 1
+	sta R
+	jmp LOOP
+	
+ELSE2:	lda M
+	ada# 1
+	sta L
+	jmp LOOP
+
+
+END:	lda OUTPUT
+	hlt
+
+L:	.word 0
+R:	.word 0
+M:	.word 0
+OUTPUT:	.word 0
+	
+
+	.equ @,$100
+TARGET:	.word 109
+SIZE:	.word 6
+SORTED:	.word -345
+	.word -98
+	.word 109
+	.word 1555
+	.word 6332
+	.word 33194

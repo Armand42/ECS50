@@ -1,0 +1,74 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.              	.equ @, $000
+  2.              	.equ stack, $300
+  3.              	
+  4.  000 020300  	lds# stack
+  5.  001 030000  	ldf# 0
+  6.  002 010000  	ldx# 0
+  7.  003 080020  	psh# $020 ; address of array
+  8.  004 080019  	psh# strlen
+  9.  005 080029  	psh# $029  ; address of the result
+ 10.  006 412100  	jsr swapcase
+ 11.  007 120003  	ads# 3
+ 12.  008 FFFFFF  	hlt
+ 13.              
+ 14.              	.equ @, $020
+ 15.  020 6C4541  inputString:  .char 'lEArN pYtHOn iN 30 YeaRS!',strlen
+      021 724E20
+      022 705974
+      023 484F6E
+      024 20694E
+      025 203330
+      026 205965
+      027 615253
+      028 212020
+ 16.              	.equ @, $029
+ 17.  029 000000  outputString:	.blkw 9, 0 ; there are 25 characters, need 9 blocks
+ 18.              
+ 19.              
+ 20.              
+ 21.              ; stack = [input, strlen, output, PC, FP] THIS IS JUST HERE TO REMEMBER THE POSITIONS OF EACH PARAMETER
+ 22.              	.equ @, $100
+ 23.              	.equ in, 4    ; A is position of array in stack
+ 24.              	.equ size, 3
+ 25.              	.equ out, 2
+ 26.              	
+ 27.              
+ 28.  100 FFF012  swapcase: 	pshf 
+ 29.              	; [$010, strlen, $030, PC, FP]
+ 30.  101 FFF008  	tsf 
+ 31.              
+ 32.  102 213003  loop:	cmx ! size ; compare XR with strlen
+ 33.  103 4B2116  	jge end
+ 34.  104 507004  	ldc* ! in   ; load the XR position in inputString 
+ 35.  105 517002  	stc* ! out  ; make a copy of that character into the outputString
+ 36.              	; ACC contains the character, we check if that is lower
+ 37.  106 200061  	cma# 'a'
+ 38.  107 4A210D  	jlt checkUpper
+ 39.  108 20007A  	cma# 'z'
+ 40.  109 4D2114  	jgt next
+ 41.  10A 140020  	sba# 'a'-'A'
+ 42.  10B 517002  	stc* ! out
+ 43.  10C 402114  	jmp next
+ 44.              
+ 45.  10D 200041  checkUpper:	cma# 'A'
+ 46.  10E 4A2114  	jlt next
+ 47.  10F 20005A  	cma# 'Z'
+ 48.  110 4D2114  	jgt next
+ 49.  111 100020  	ada# 'a'-'A'
+ 50.  112 517002  	stc* ! out
+ 51.  113 402114  	jmp next
+ 52.              
+ 53.  114 110001  next:	adx# 1
+ 54.  115 402102  	jmp loop
+ 55.              
+ 56.  116 FFF015  end:	popf ; pop FP    [array, m, n, arrayT, PC]
+ 57.  117 FFF040  	rtn   
+ 58.              
+
+                     SYMBOL TABLE CONTENTS
+
+00010D = CHECKUPPER      000116 = END             000004 = IN              
+000020 = INPUTSTRING     000102 = LOOP            000114 = NEXT            
+000002 = OUT             000029 = OUTPUTSTRING    000003 = SIZE            
+000300 = STACK           000019 = STRLEN          000100 = SWAPCASE        

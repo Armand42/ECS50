@@ -1,0 +1,28 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.              	.equ  @,$010
+  2.              	.equ num,2
+  3.  010 FFF012  double:	pshf
+  4.  011 FFF008  	tsf
+  5.  012 003002  	lda ! num
+  6.  013 103002  	ada ! num
+  7.  014 FFF010  	psha
+  8.  015 412020  	jsr square
+  9.  016 FFF015  	popf
+ 10.  017 120001  	ads# 1
+ 11.  018 FFF040  	rtn
+ 12.              
+ 13.              	.equ @,$020
+ 14.              	.equ value, 2
+ 15.  020 FFF012  square:	pshf
+ 16.  021 FFF008  	tsf
+ 17.  022 003002  	lda ! value
+ 18.  023 183002  	mul ! value
+ 19.  024 FFF015  	popf
+ 20.  025 FFF040  	rtn 
+ 21.              	.end
+ 22.              	
+
+                     SYMBOL TABLE CONTENTS
+
+000010 = DOUBLE          000002 = NUM             000020 = SQUARE          
+000002 = VALUE           

@@ -1,0 +1,35 @@
+	.equ @,$000
+	.equ stackstart,$030
+	.equ crt_data,$317
+	.equ zero,$30
+	.equ nine,$39
+	
+	.equ kbd_ctrl,$000
+	.equ kbd_data,$001
+	.equ enable_ints,$80
+		
+main:	lda# enable_ints
+	outb kbd_ctrl  ; set up interrupt 
+	lds# stackstart ; set up stack
+
+	sie
+loop:	lda# zero
+	ada counter
+	cma# nine
+	jgt reset
+	outb crt_data
+	jmp loop
+reset:	lda# 0
+	sta counter
+	jmp loop
+counter:	.word 0
+
+
+keyboard:	psha
+	inb kbd_data
+	inc counter
+	popa
+	irtn	
+
+	.equ @,$FF8
+	.word keyboard

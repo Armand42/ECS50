@@ -1,0 +1,26 @@
+	.equ @, $000
+	lds# $010	; load stack register with address
+	psh# 1
+	psh# 2
+	psh# 3
+	popa 
+	popa
+	popa	; stack overflow
+	popa
+	popa
+	popa
+	hlt
+	.end
+
+
+
+; stack pointer needs to finish where it started after program runs
+
+
+
+
+;$007
+;$008 3
+;$009 2
+;$00A 1
+;$00B

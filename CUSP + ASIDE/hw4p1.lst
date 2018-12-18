@@ -1,0 +1,111 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.              	.equ @, $000
+  2.              	.equ stack, $300
+  3.              	
+  4.  000 020300  	lds# stack
+  5.  001 030000  	ldf# 0
+  6.  002 080010  	psh# $010 ; address of array
+  7.  003 082009  	psh m
+  8.  004 08200A  	psh n
+  9.  005 080020  	psh# $020  ; address of the result
+ 10.  006 412100  	jsr transpose
+ 11.  007 120004  	ads# 4
+ 12.  008 FFFFFF  	hlt
+ 13.              
+ 14.  009 000004  m: 	.word 4 ; number of rows
+ 15.  00A 000003  n: 	.word 3  ; number of cols
+ 16.              	.equ @, $010
+ 17.  010 000001  array: 	.word 1
+ 18.  011 000002  	.word 2
+ 19.  012 000003  	.word 3
+ 20.  013 000004  	.word 4
+ 21.  014 000005  	.word 5
+ 22.  015 000006  	.word 6
+ 23.  016 000007  	.word 7
+ 24.  017 000008  	.word 8
+ 25.  018 000009  	.word 9
+ 26.  019 00000A  	.word 10
+ 27.  01A 00000B  	.word 11
+ 28.  01B 00000C  	.word 12
+ 29.              	.equ @, $020
+ 30.  020 000000  arrayT:	.blkw m * n, 0
+ 31.              
+ 32.              ; arrayT: 1 4 2 5 3 6
+ 33.              
+ 34.              
+ 35.              
+ 36.              
+ 37.              ; transpose
+ 38.              ;          5   4 3  2   1    0
+ 39.              ; stack = [A, m, n, B, PC, FP] THIS IS JUST HERE TO REMEMBER THE POSITIONS OF EACH PARAMETER
+ 40.              	.equ @, $100
+ 41.              	.equ A, 5    ; A is position of array in stack
+ 42.              	.equ m_stack, 4
+ 43.              	.equ n_stack, 3
+ 44.              	.equ B, 2
+ 45.              	
+ 46.              
+ 47.  100 FFF012  transpose: 	pshf 
+ 48.              	; [$010, m, n, $020, PC, FP]
+ 49.  101 FFF008  	tsf 
+ 50.              	; transpose: for x = 0 to x = n*m-1, B[y] = A[x] 
+ 51.              	; where y = j*n+i where i = x/m and j = x%m
+ 52.  102 003004  	lda ! m_stack  ; ACC = m
+ 53.  103 183003  	mul ! n_stack  ; ACC *= n
+ 54.  104 140001  	sba# 1    ; ACC -=1
+ 55.  105 042122  	sta max_index
+ 56.              
+ 57.  106 002121  loop:	lda x 
+ 58.  107 202122  	cma max_index
+ 59.  108 4D211F  	jgt end
+ 60.  109 003005  	lda ! A   ; ACC = address of A = $010
+ 61.  10A 102121  	ada x    ; ACC = array + x = 
+ 62.  10B 042126  	sta address  ; given the adrress, how to load value of that address
+ 63.  10C 006126  	lda* address; ACC = A[x]
+ 64.  10D 042125  	sta temp    ; temp = A[x]
+ 65.              
+ 66.  10E 002121  	lda x
+ 67.  10F 193003  	div ! n_stack
+ 68.  110 042123  	sta i
+ 69.  111 002121  	lda x
+ 70.  112 1A3003  	mod ! n_stack
+ 71.  113 042124  	sta j
+ 72.  114 003004  	lda ! m_stack
+ 73.  115 182124  	mul j
+ 74.  116 102123  	ada i  
+ 75.              	; ACC = y
+ 76.  117 103002  	ada ! B  ; ACC = address of B[y]
+ 77.  118 042126  	sta address   ; address = ACC
+ 78.  119 002125  	lda temp     ; ACC = temp
+ 79.  11A 046126  	sta* address  ; B[y] = temp
+ 80.  11B 002121  	lda x 
+ 81.  11C 100001  	ada# 1
+ 82.  11D 042121  	sta x
+ 83.  11E 402106  	jmp loop
+ 84.              
+ 85.  11F FFF015  end:	popf ; pop FP    [array, m, n, arrayT, PC]
+ 86.  120 FFF040  	rtn   ; pop PC  [array, m, n, arrayT]
+ 87.              
+ 88.  121 000000  x: 	.word 0  ; runner index for A in 1D
+ 89.  122 000000  max_index:	.word 0   ; max index = n*m-1
+ 90.  123 000000  i: 	.word 0   ; 
+ 91.  124 000000  j:	.word 0   ;(i,j) for 2D array
+ 92.  125 000000  temp:	.word 0
+ 93.  126 000000  address:	.word 0
+ 94.              
+ 95.              ;Aarray:	.word 0
+ 96.              ;Barray:	.word 0
+ 97.              
+ 98.              
+ 99.              ; lda variable -> give the number at variable
+100.              ; the variable contains the address
+101.              ; varaible $200
+
+                     SYMBOL TABLE CONTENTS
+
+000005 = A               000126 = ADDRESS         000010 = ARRAY           
+000020 = ARRAYT          000002 = B               00011F = END             
+000123 = I               000124 = J               000106 = LOOP            
+000009 = M               000122 = MAX_INDEX       000004 = M_STACK         
+00000A = N               000003 = N_STACK         000300 = STACK           
+000125 = TEMP            000100 = TRANSPOSE       000121 = X               

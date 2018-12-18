@@ -1,0 +1,67 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.              	
+  2.              
+  3.  000 002102  		lda current_secs
+  4.  001 102105  		ada elapsed_secs
+  5.  002 20003C  		cma# 60
+  6.  003 4B2006  		jge first_else	; >= 60 go to first else
+  7.  004 042108  		sta future_secs
+  8.  005 402009  		jmp second_if	; jump unconditional/no else 
+  9.              
+ 10.              
+ 11.  006 14003C  first_else:		sba# 60
+ 12.  007 042108  		sta future_secs
+ 13.  008 1B2109  		inc newMins
+ 14.              
+ 15.  009 002109  second_if:		lda newMins
+ 16.  00A 102101  		ada current_mins
+ 17.  00B 102104  		ada elapsed_mins
+ 18.  00C 20003C  		cma# 60
+ 19.  00D 4B2010  		jge second_else
+ 20.  00E 042107  		sta future_mins
+ 21.  00F 402013  		jmp third_if
+ 22.              
+ 23.  010 14003C  second_else:		sba# 60
+ 24.  011 042107  		sta future_mins
+ 25.  012 1B210A  		inc newHours
+ 26.              
+ 27.  013 00210A  third_if:		lda newHours
+ 28.  014 102100  		ada current_hours
+ 29.  015 102103  		ada elapsed_hours
+ 30.  016 200018  		cma# 24
+ 31.  017 4B201A  		jge third_else
+ 32.  018 042106  		sta future_hours
+ 33.  019 40201C  		jmp end
+ 34.              
+ 35.  01A 140018  third_else:		sba# 24
+ 36.  01B 042106  		sta future_hours
+ 37.              
+ 38.  01C FFFFFF  end:		hlt
+ 39.              
+ 40.              
+ 41.              		.equ @, $100
+ 42.  100 000011  current_hours: 	.word 17  ;100
+ 43.  101 000022  current_mins:		.word 34 ;101
+ 44.  102 000038  current_secs:		.word 56 ;102
+ 45.  103 000009  elapsed_hours:		.word 9  ;103
+ 46.  104 000030  elapsed_mins:		.word 48  ;104
+ 47.  105 000011  elapsed_secs:		.word 17  ;105
+ 48.  106 000000  future_hours:		.word 0  ;106
+ 49.  107 000000  future_mins:		.word 0  ;107
+ 50.  108 000000  future_secs:		.word 0  ;108
+ 51.  109 000000  newMins:		.word 0  ;109
+ 52.  10A 000000  newHours:		.word 0  ;110
+ 53.              
+ 54.              
+ 55.              
+ 56.              
+ 57.              
+
+                     SYMBOL TABLE CONTENTS
+
+000100 = CURRENT_HOURS   000101 = CURRENT_MINS    000102 = CURRENT_SECS    
+000103 = ELAPSED_HOURS   000104 = ELAPSED_MINS    000105 = ELAPSED_SECS    
+00001C = END             000006 = FIRST_ELSE      000106 = FUTURE_HOURS    
+000107 = FUTURE_MINS     000108 = FUTURE_SECS     00010A = NEWHOURS        
+000109 = NEWMINS         000010 = SECOND_ELSE     000009 = SECOND_IF       
+00001A = THIRD_ELSE      000013 = THIRD_IF        

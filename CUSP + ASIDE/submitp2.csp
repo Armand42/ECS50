@@ -1,0 +1,29 @@
+	.equ @,$000
+	
+	ldx#	0
+LOOP:	cmx  size
+	jge  end
+	lda+	X
+	cma+  Y
+	jgt	inc_INDEX	; jump if X[i] > Y[i]
+	lda#	0
+	sta	output
+	jmp	end
+inc_INDEX:	adx#	1
+	jmp LOOP	
+end:	lda output	; output is in acc
+	hlt
+output:	.word 1
+size:	.word 6
+X:	.word 95
+	.word 1002
+	.word 233
+	.word -137	
+	.word 6332
+	.word -33191
+Y:	.word 35
+	.word 102
+	.word 109
+	.word -1378
+	.word 6332
+	.word -33194

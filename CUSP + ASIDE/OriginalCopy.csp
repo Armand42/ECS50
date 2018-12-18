@@ -1,0 +1,422 @@
+;timer stuff
+	.equ @,$000
+	.equ stack,$300
+	.equ tim_ctrl,$030
+	.equ tim_stat,$030
+	.equ tim_valu,$031
+	.equ reset_ready_bit,$40
+	.equ start_after_load,$10
+	.equ put_str,$E05
+
+timer_main:	lda reload
+	outw tim_valu
+	lda# reset_ready_bit + start_after_load
+	outb tim_ctrl
+
+repeat:	lds# stack
+	ldf# 0
+	psh# prompt_len
+	psh# prompt
+	jsr put_str
+	ads# 2
+
+poll:	inb $000
+	jge poll
+	inb $001
+	sta enter
+	outb $317
+	sba# '0'
+	sta enter
+	cma# 0
+	jeq exit
+
+	lda# 10
+	outb $317
+	lda# 13
+	outb $317
+
+	lda# 0
+	sta iter
+
+gen_loop:	CIE
+	lda# $01
+	outb $316
+	
+	lda iter
+	cma enter
+	jgt repeat
+
+	psh# gen_len
+	psh# generation
+	jsr put_str
+	ads# 2
+	
+	lda number
+	ada# '0'
+	outb $317	
+	
+	lda iter
+	ada# 1
+	sta iter
+	lda number
+	ada# 1
+	sta number
+
+	;lda# 10
+	;outb $317
+	;lda# 13
+	;outb $317
+
+	ldx# 0
+print_array:	cmx size
+	jge running
+	txa
+	mod cols
+	cma# 0
+	jeq print_newline
+	
+continue:	lda# 1
+	cma+ in_array
+	jeq print_star
+	
+	lda# 46 
+	outb $317
+	adx# 1
+	jmp print_array
+	
+print_star:	lda# 42
+	outb $317
+	adx# 1
+	jmp print_array
+
+print_newline:	lda# 10 
+	outb $317
+	lda# 13
+	outb $317
+	jmp continue	
+
+running: 	lda# 10
+	outb $317
+	lda# 13
+	outb $317
+
+	ldx# $FFF
+	psh# in_array
+	psh  rows
+	psh  cols
+	psh# out_array
+	jsr nextGen
+	ads# 4
+
+	ldx# 0
+copy_array:	cmx size
+	jge timer_loop
+	lda+ out_array
+	sta+ in_array
+	adx# 1
+	jmp copy_array
+
+	
+timer_loop:	lda# enable_ints
+	outb kbd_ctrl
+	SIE
+	inb tim_stat
+	jge timer_loop
+
+	lda# reset_ready_bit
+	outb tim_ctrl
+	
+kbd_int:	inb kbd_data
+	ads# 1
+	jmp gen_loop
+
+exit:	psh# EOP_len
+	psh# EOP
+	jsr put_str
+	ads# 2
+	hlt
+
+
+reload:	.word $010000
+iter:	.word 0
+enter:	.word 0
+number:	.word 0
+EOP:	.char '\lf\crEnd of Program.',EOP_len
+prompt: 	.char	'How many new generations would you like to print (enter 0 to end)? ', prompt_len
+.equ enable_ints,$80
+.equ kbd_data,$001
+.equ kbd_ctrl,$000
+
+generation:	.char 'Generation: ', gen_len
+rows: 	.word 6
+cols:	.word 7
+size:	.word 42
+
+	.equ @,$100
+in_array:	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+
+	.word 0
+	.word 0
+	.word 1
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+
+	.word 0
+	.word 0
+	.word 0
+	.word 1
+	.word 0
+	.word 0
+	.word 0
+	
+	.word 0
+	.word 1
+	.word 1
+	.word 1
+	.word 0
+	.word 0
+	.word 0
+
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	
+	.equ @,$150
+out_array:	.blkw 42,0
+
+
+;main SR
+
+	.equ @,$400
+	.equ total,1
+	.equ newarr, 3
+	.equ col, 4
+	.equ row, 5
+	.equ oldarr,6
+temp:	.word 0
+totaln:	.word 0
+nextGen:	psh totaln
+	pshf
+	tsf
+loop:	adx# 1
+	lda# 0
+	sta ! total
+	lda ! row
+	mul ! col
+	sta temp
+	cmx temp
+	jge end
+;corners
+	cmx# 0
+	jeq TLC
+	lda ! col
+	sba# 1
+	sta temp
+	cmx temp
+	jeq TRC
+	lda ! row
+	mul ! col
+	sba ! col
+	sta temp
+	cmx temp
+	jeq BLC
+	lda temp
+	ada ! col
+	sba# 1
+	sta temp
+	cmx temp
+	jeq BRC
+;sides
+	cmx ! col
+	jlt	top	 
+	lda ! col
+	sba# 1
+	sta temp
+	txa
+	mod ! col
+	cma temp
+	jeq right
+	lda ! row
+	mul ! col
+	sba ! col
+	sta temp
+	cmx temp
+	jgt bot
+	txa
+	mod ! col
+	cma# 0
+	jeq left
+; everything else
+	sbx# 1
+	jsr compare
+	sbx ! col
+	jsr compare
+	adx# 1
+	jsr compare
+	adx# 1
+	jsr compare
+	adx ! col
+	jsr compare
+	adx ! col
+	jsr compare
+	sbx# 1
+	jsr compare
+	sbx# 1
+	jsr compare
+	sbx ! col
+	adx# 1
+
+write:	lda ! total
+	cma# 1
+	jle dies
+	cma# 2
+	jeq stays
+	cma# 3
+	jeq lives
+	cma# 3
+	jgt dies
+
+dies:	lda# 0
+	sta& ! newarr
+	jmp loop
+lives:	lda# 1
+	sta& ! newarr
+	jmp loop
+stays:	lda& ! oldarr
+	sta& ! newarr
+	jmp loop
+
+
+
+	
+compare:	.equ olda,8
+	.equ tot,3
+	pshf
+	tsf
+	lda& ! olda
+	cma# 0
+	jgt addneighbour
+next:	popf
+	rtn
+
+addneighbour:	inc ! tot
+	jmp next
+
+end:
+	popf
+	ads# 1
+	rtn
+;top left corner when xr = 0
+TLC:	ldx# 1
+	jsr compare
+	adx ! col
+	jsr compare
+	sbx# 1
+	jsr compare
+	ldx# 0
+	jmp write
+
+TRC:	sbx# 1
+	jsr compare
+	adx ! col
+	jsr compare
+	adx# 1
+	jsr compare
+	lda ! col
+	sba# 1
+	tax
+	jmp write
+	
+
+BLC:	sbx ! col
+	jsr compare
+	adx# 1
+	jsr compare
+	adx ! col
+	jsr compare
+	sbx# 1
+	jmp write
+
+BRC:	sbx# 1
+	jsr compare
+	sbx ! col
+	jsr compare
+	adx# 1
+	jsr compare
+	adx ! col
+	jmp write
+
+top:	sbx# 1
+	jsr compare
+	adx ! col
+	jsr compare
+	adx# 1
+	jsr compare
+	adx# 1
+	jsr compare
+	sbx ! col
+	jsr compare
+	sbx# 1
+	jmp write
+
+right:	sbx ! col
+	jsr compare
+	sbx# 1
+	jsr compare
+	adx ! col
+	jsr compare
+	adx ! col
+	jsr compare
+	adx# 1
+	jsr compare
+	sbx ! col
+	jmp write
+
+bot:	sbx# 1
+	jsr compare
+	sbx ! col
+	jsr compare
+	adx# 1
+	jsr compare
+	adx# 1
+	jsr compare
+	adx ! col
+	jsr compare
+	sbx# 1
+	jmp write
+
+left:	sbx ! col
+	jsr compare
+	adx# 1
+	jsr compare
+	adx ! col
+	jsr compare
+	adx ! col
+	jsr compare
+	sbx# 1
+	jsr compare
+	sbx ! col
+	jmp write
+
+.equ @,$FF8
+.word kbd_int

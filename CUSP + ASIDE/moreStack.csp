@@ -1,0 +1,43 @@
+; main program
+	.equ @, $000
+	.equ stack,$040	; make a stack
+	lds# stack	; load stack pointer with 40
+	ldf# 0	; load frame pointer with 0
+	psh main_base	; order does not matter
+	psh main_exp	
+	jsr power
+	ads# 2	; add 2 to stack pointer IMPORTANT
+	
+	sta answer
+	hlt
+
+main_base:	.word 3
+main_exp:	.word 4
+answer:	.word -1
+
+; power subroutine
+	.equ @,$020
+	.equ base,3
+	.equ exp,2
+
+power:	pshf		; push frame pointer onto the stack so we dont lose value of the frame pointer
+	tsf
+	lda# 1
+	sta temp
+	
+loop:	lda ! exp
+	cma# 0
+	jle end
+
+	lda temp
+	mul ! base
+	sta temp
+
+	dec ! exp
+	jmp loop
+
+end:	lda temp
+	popf		; pop from stack into the frame pointer
+	rtn
+
+temp:	.word

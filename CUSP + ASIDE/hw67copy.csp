@@ -1,0 +1,394 @@
+	.equ @,$000
+	.equ stack,$080
+	.equ old,$060
+	.equ new,$100
+	.equ rows,3
+	.equ cols,5
+;______________I/O Display ports_____________________
+	.equ display,$317
+	.equ tim_ctrl,$030
+	.equ tim_valu,$031
+	.equ reset_ready_bit,$040
+	.equ start_after_load,$010
+	.equ enable_ints,$80
+	.equ kbd_ctrl,$000
+	.equ kbd_data,$001
+	.equ put_str,$E05
+	.equ tim_stat,$030
+
+	CIE
+	lds# stack
+	ldf# 0
+	ldx# $FFF
+	psh# old
+	psh# rows
+	psh# cols
+	psh# new
+	
+askagain:	jsr askq
+	;jsr generation
+	jsr printcurr
+	jmp askagain
+	
+;SIE 
+;CIE 
+;IRTN
+	ads# 4
+
+	hlt
+
+	.equ @,$060
+	.word 0
+	.word 1
+	.word 1
+	.word 0
+	.word 1
+	.word 1
+	.word 1
+	.word 0
+	.word 0
+	.word 1
+	.word 0
+	.word 0
+	.word 1
+	.word 1
+	.word 1
+	.equ @,$100
+	.blkw 15,0
+
+
+;_________________DO NOT TOUCH_______________
+
+	.equ @,$400
+	.equ total,4
+	.equ newarr, 6
+	.equ col, 7
+	.equ row, 8
+	.equ oldarr,9
+temp:	.word 0
+totaln:	.word 0
+generation:	psh totaln
+	pshf
+	tsf
+loop:	adx# 1
+	lda# 0
+	sta ! total
+	lda ! row
+	mul ! col
+	sta temp
+	cmx temp
+	jge end
+;corners
+	cmx# 0
+	jeq TLC
+	lda ! col
+	sba# 1
+	sta temp
+	cmx temp
+	jeq TRC
+	lda ! row
+	mul ! col
+	sba ! col
+	sta temp
+	cmx temp
+	jeq BLC
+	lda temp
+	ada ! col
+	sba# 1
+	sta temp
+	cmx temp
+	jeq BRC
+;sides
+	cmx ! col
+	jlt	top	 
+	lda ! col
+	sba# 1
+	sta temp
+	txa
+	mod ! col
+	cma temp
+	jeq right
+	lda ! row
+	mul ! col
+	sba ! col
+	sta temp
+	cmx temp
+	jgt bot
+	txa
+	mod ! col
+	cma# 0
+	jeq left
+; everything else
+	sbx# 1
+	jsr compare
+	sbx ! col
+	jsr compare
+	adx# 1
+	jsr compare
+	adx# 1
+	jsr compare
+	adx ! col
+	jsr compare
+	adx ! col
+	jsr compare
+	sbx# 1
+	jsr compare
+	sbx# 1
+	jsr compare
+	sbx ! col
+	adx# 1
+
+write:	lda ! total
+	cma# 1
+	jle dies
+	cma# 2
+	jeq stays
+	cma# 3
+	jeq lives
+	cma# 3
+	jgt dies
+
+dies:	lda# 0
+	sta& ! newarr
+	jmp loop
+lives:	lda# 1
+	sta& ! newarr
+	jmp loop
+stays:	lda& ! oldarr
+	sta& ! newarr
+	jmp loop
+
+
+
+	
+compare:	.equ olda,11
+	.equ tot,6
+	pshf
+	tsf
+	lda& ! olda
+	cma# 0
+	jgt addneighbour
+next:	popf
+	rtn
+
+addneighbour:	inc ! tot
+	jmp next
+
+end:
+	popf
+	ads# 1
+	rtn
+;top left corner when xr = 0
+TLC:	ldx# 1
+	jsr compare
+	adx ! col
+	jsr compare
+	sbx# 1
+	jsr compare
+	ldx# 0
+	jmp write
+
+TRC:	sbx# 1
+	jsr compare
+	adx ! col
+	jsr compare
+	adx# 1
+	jsr compare
+	lda ! col
+	sba# 1
+	tax
+	jmp write
+	
+
+BLC:	sbx ! col
+	jsr compare
+	adx# 1
+	jsr compare
+	adx ! col
+	jsr compare
+	sbx# 1
+	jmp write
+
+BRC:	sbx# 1
+	jsr compare
+	sbx ! col
+	jsr compare
+	adx# 1
+	jsr compare
+	adx ! col
+	jmp write
+
+top:	sbx# 1
+	jsr compare
+	adx ! col
+	jsr compare
+	adx# 1
+	jsr compare
+	adx# 1
+	jsr compare
+	sbx ! col
+	jsr compare
+	sbx# 1
+	jmp write
+
+right:	sbx ! col
+	jsr compare
+	sbx# 1
+	jsr compare
+	adx ! col
+	jsr compare
+	adx ! col
+	jsr compare
+	adx# 1
+	jsr compare
+	sbx ! col
+	jmp write
+
+bot:	sbx# 1
+	jsr compare
+	sbx ! col
+	jsr compare
+	adx# 1
+	jsr compare
+	adx# 1
+	jsr compare
+	adx ! col
+	jsr compare
+	sbx# 1
+	jmp write
+
+left:	sbx ! col
+	jsr compare
+	adx# 1
+	jsr compare
+	adx ! col
+	jsr compare
+	adx ! col
+	jsr compare
+	sbx# 1
+	jsr compare
+	sbx ! col
+	jmp write
+;___________________________________
+askq:	psh# asklen
+	psh# ask
+	jsr put_str
+	  lda# $03
+	outb display
+poll:	inb kbd_ctrl
+	jge poll
+	inb kbd_data
+	outb display
+	cma# $30
+	jeq EOP
+	sba# $030
+	sta answ
+	ads# 2
+	rtn
+
+
+EOP:	jsr newline
+	psh# end_len
+	psh# endprompt
+	jsr put_str
+	ads# 2
+	hlt
+;___________________________
+	.equ newarr1, 3
+	.equ col1, 4
+	.equ row1, 5
+	.equ oldarr1, 6
+printcurr:	pshf
+	psha
+	tsf
+	lda# 0
+	sta answind
+printcurrs:	ldx answind
+	cmx answ
+	jeq endprint
+	jsr newline
+	outb display
+	psh# gen_len
+	psh# gen_count
+	jsr put_str
+	ads# 2
+	ldc gen_index
+	outb display
+	lda ! col1
+	mul ! row1
+	sta size
+	ldx# $FFF
+	jsr generation
+	ldx# 0
+print_loop:	cmx size
+	jeq increasegen
+	txa
+	mod ! col1
+	cma# 0
+	jeq nextline
+next1:	lda& ! oldarr1
+	cma# 1
+	jeq markstar
+	lda# '.'
+	outb display
+	lda# ' '
+	outb display
+return:	lda& ! newarr1
+	sta& ! oldarr1
+	adx# 1
+	jmp print_loop
+increasegen:	inc gen_index
+	inc answind
+	ldx#0
+	jmp printcurrs
+;_____________________TIMER________________
+;	SIE
+;	lda reload
+;	outw tim_valu
+;	lda# reset_ready_bit + start_after_load
+;	outb tim_ctrl
+;looop:	inb tim_stat
+;	jge looop
+;	lda# reset_ready_bit
+;	outb tim_ctrl
+;	jmp looop
+;	
+;	jmp printcurrs	
+	
+newline:	lda# '\cr'
+	outb display
+	lda# '\lf'
+	outb display
+	lda# '\lf'
+	outb display
+	  lda# $02
+	outb display
+	rtn	
+nextline:	jsr newline
+	  lda# $05
+	outb display
+	jmp next1
+markstar:	lda# '*'
+	outb display
+	lda# ' '
+	outb display
+	jmp return
+
+endprint:	jsr newline
+	popa
+	popf
+	rtn
+kbd_int:	ads# 1
+	jmp printcurrs
+
+
+endprompt:	.char 'End of program.',end_len
+ask:	.char 'How many new generations would you like to print (enter 0 to end)?',asklen
+reload:	.word $002710 ;10k in hex 10k ms hopefully
+answ:	.word 0
+answind:	.word 0
+gen_index:	.word 0
+size:	.word 0
+gen_count:	.char 'Generation: ',gen_len
+.equ @,$FF8
+.word kbd_int

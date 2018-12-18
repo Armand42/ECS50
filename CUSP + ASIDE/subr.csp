@@ -1,0 +1,25 @@
+; subr.csp - showing basics of subrouting calling
+	.equ @,$000
+	.equ stack_start, $015	; put stack somewhere
+	lds# stack_start
+	
+	lda# 3	; crude parameter passing (dont do this)
+	sta num	; put val to be squared in known mem addr
+	jsr square	; call square subroutine
+	lda result	; expect new val in another known mem and use it
+
+	lda# 4	; repeat
+	sta num
+	jsr square
+	lda result
+
+	hlt
+
+; subroutine to compute the square of some argument
+result:	.word
+square:	lda num
+	mul num
+	sta result
+	rtn
+num:	.word
+	

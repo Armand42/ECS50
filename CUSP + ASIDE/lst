@@ -1,0 +1,27 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.              	.equ @, $000
+  2.  000 02000B  	lds# $00B	; load stack register with address
+  3.  001 080001  	psh# 1
+  4.  002 080002  	psh# 2
+  5.  003 080003  	psh# 3
+  6.  004 FFF013  	popa
+  7.  005 FFF013  	popa
+  8.  006 FFF013  	popa
+  9.              
+ 10.              
+ 11.              
+ 12.              
+ 13.              
+ 14.              
+ 15.              
+ 16.              
+ 17.              
+ 18.              
+ 19.              ;$007
+ 20.              ;$008 3
+ 21.              ;$009 2
+ 22.              ;$00A 1
+ 23.              ;$00B
+
+                     SYMBOL TABLE CONTENTS
+

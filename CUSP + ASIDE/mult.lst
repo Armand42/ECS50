@@ -1,0 +1,40 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.  000 002100  	lda n
+  2.  001 200000  	cma# 0
+  3.  002 4B2005  	jge loop
+  4.  003 1D2100  	neg n
+  5.  004 1D2101  	neg m
+  6.              
+  7.  005 00200E  loop: 	lda counter	
+  8.  006 202100  	cma n		
+  9.  007 4D200D  	jgt end	
+ 10.  008 002102  	lda sum
+ 11.  009 102101  	ada m			
+ 12.  00A 042102  	sta sum
+ 13.  00B 1B200E  	inc counter		
+ 14.  00C 402005  	jmp loop	
+ 15.  00D FFFFFF  end: 	hlt	
+ 16.              	
+ 17.              
+ 18.  00E 000001  counter:	.word $001
+ 19.              	.equ @,$100	
+ 20.  100 FFFFFB  n:	.word -5	
+ 21.  101 FFFFFD  m:	.word -3
+ 22.  102 000000  sum: 	.word $000
+ 23.              
+ 24.              ;negative_n:
+ 25.              ;	lda m		; checks only if n is negative
+ 26.              ;	cma# $000	; 
+ 27.              ;	jlt funcLoop
+ 28.              	
+ 29.              ;funcLoop:
+ 30.              ;	lda counter
+ 31.              	
+ 32.              
+ 33.              	
+ 34.              	
+
+                     SYMBOL TABLE CONTENTS
+
+00000E = COUNTER         00000D = END             000005 = LOOP            
+000101 = M               000100 = N               000102 = SUM             

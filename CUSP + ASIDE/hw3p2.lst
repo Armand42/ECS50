@@ -1,0 +1,36 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.              	.equ @,$000
+  2.              	
+  3.  000 010000  	ldx#	0
+  4.  001 21200E  LOOP:	cmx  size
+  5.  002 4B200B  	jge  end
+  6.  003 00400F  	lda+	X
+  7.  004 204015  	cma+  Y
+  8.  005 4D2009  	jgt	inc_INDEX	; jump if X[i] > Y[i]
+  9.  006 000000  	lda#	0
+ 10.  007 04200D  	sta	output
+ 11.  008 40200B  	jmp	end
+ 12.  009 110001  inc_INDEX:	adx#	1
+ 13.  00A 402001  	jmp LOOP	
+ 14.  00B 00200D  end:	lda output	; output is in acc
+ 15.  00C FFFFFF  	hlt
+ 16.  00D 000001  output:	.word 1
+ 17.  00E 000006  size:	.word 6
+ 18.  00F 00005F  X:	.word 95
+ 19.  010 0003EA  	.word 1002
+ 20.  011 0000E9  	.word 233
+ 21.  012 FFFF77  	.word -137	
+ 22.  013 0018BC  	.word 6332
+ 23.  014 FF7E59  	.word -33191
+ 24.  015 000023  Y:	.word 35
+ 25.  016 000066  	.word 102
+ 26.  017 00006D  	.word 109
+ 27.  018 FFFA9E  	.word -1378
+ 28.  019 0018BC  	.word 6332
+ 29.  01A FF7E56  	.word -33194
+
+                     SYMBOL TABLE CONTENTS
+
+00000B = END             000009 = INC_INDEX       000001 = LOOP            
+00000D = OUTPUT          00000E = SIZE            00000F = X               
+000015 = Y               

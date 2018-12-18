@@ -1,0 +1,101 @@
+	.equ @, $000
+	.equ stack, $300
+	
+	lds# stack
+	ldf# 0
+	psh# $010 ; address of array
+	psh m
+	psh n
+	psh# $020  ; address of the result
+	jsr transpose
+	ads# 4
+	hlt
+
+m: 	.word 4 ; number of rows
+n: 	.word 3  ; number of cols
+	.equ @, $010
+array: 	.word 1
+	.word 2
+	.word 3
+	.word 4
+	.word 5
+	.word 6
+	.word 7
+	.word 8
+	.word 9
+	.word 10
+	.word 11
+	.word 12
+	.equ @, $020
+arrayT:	.blkw m * n, 0
+
+; arrayT: 1 4 2 5 3 6
+
+
+
+
+; transpose
+;          5   4 3  2   1    0
+; stack = [A, m, n, B, PC, FP] THIS IS JUST HERE TO REMEMBER THE POSITIONS OF EACH PARAMETER
+	.equ @, $100
+	.equ A, 5    ; A is position of array in stack
+	.equ m_stack, 4
+	.equ n_stack, 3
+	.equ B, 2
+	
+
+transpose: 	pshf 
+	; [$010, m, n, $020, PC, FP]
+	tsf 
+	; transpose: for x = 0 to x = n*m-1, B[y] = A[x] 
+	; where y = j*n+i where i = x/m and j = x%m
+	lda ! m_stack  ; ACC = m
+	mul ! n_stack  ; ACC *= n
+	sba# 1    ; ACC -=1
+	sta max_index
+
+loop:	lda x 
+	cma max_index
+	jgt end
+	lda ! A   ; ACC = address of A = $010
+	ada x    ; ACC = array + x = 
+	sta address  ; given the adrress, how to load value of that address
+	lda* address; ACC = A[x]
+	sta temp    ; temp = A[x]
+
+	lda x
+	div ! n_stack
+	sta i
+	lda x
+	mod ! n_stack
+	sta j
+	lda ! m_stack
+	mul j
+	ada i  
+	; ACC = y
+	ada ! B  ; ACC = address of B[y]
+	sta address   ; address = ACC
+	lda temp     ; ACC = temp
+	sta* address  ; B[y] = temp
+	lda x 
+	ada# 1
+	sta x
+	jmp loop
+
+end:	popf ; pop FP    [array, m, n, arrayT, PC]
+	rtn   ; pop PC  [array, m, n, arrayT]
+
+x: 	.word 0  ; runner index for A in 1D
+max_index:	.word 0   ; max index = n*m-1
+i: 	.word 0   ; 
+j:	.word 0   ;(i,j) for 2D array
+temp:	.word 0
+address:	.word 0
+
+;Aarray:	.word 0
+;Barray:	.word 0
+
+
+; lda variable -> give the number at variable
+; the variable contains the address
+; varaible $200

@@ -1,0 +1,14 @@
+	.equ @, $000
+	.equ stack,$01A	; make a stack
+	
+	lds# stack
+	psh# 10
+	psh# 20
+	ldf# 0
+	
+	lda ! first   ; first = 
+	lda ! second
+	hlt
+
+first:	.word 0
+second: 	.word 0

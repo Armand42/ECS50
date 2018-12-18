@@ -1,0 +1,13 @@
+	ldx#	0
+loop:	cmx# strlen
+	jge  end
+	ldc  oldString
+	ada#	1
+	stc newString
+	adx#  1
+	jmp	loop
+end:	hlt
+	.equ @,$010
+oldString:	.char 'hi how are you',strlen	       ; not a variable just a symbol so you need immediate addressing
+	.equ @,$015
+newString:	.blkw 5,0

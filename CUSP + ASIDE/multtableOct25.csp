@@ -1,0 +1,39 @@
+;multtableOct25.csp
+;row major array - multiplication table
+
+	.equ row_len, 4
+	.equ col_len, 4
+	.equ max_row, row_len - 1
+	.equ max_col, col_len - 1
+	
+rloop:	lda  curr_row
+	cma# max_row ; as long is its not greater than max row
+	jgt  rloop_end
+	
+cloop:	lda curr_col
+	cma# max_col
+	jgt  cloop_end
+
+	lda curr_row
+	mul# col_len
+	ada curr_col
+	tax 
+
+	;; compute value
+	;; store it in table
+	
+	;; bump column counter
+	;; back to top of loop
+
+
+
+
+cloop_end:	??????
+
+rloop_end:	??????
+
+
+curr_row:	.word	0
+curr_col:	.word 0
+table:	.blkw row_len * col_len,	-1	; initialize as hlt
+

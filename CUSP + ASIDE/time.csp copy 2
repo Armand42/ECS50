@@ -1,0 +1,56 @@
+	
+
+		lda current_secs
+		ada elapsed_secs
+		cma# 60
+		jge first_else	; >= 60 go to first else
+		sta future_secs
+		jmp second_if	; jump unconditional/no else 
+
+
+first_else:		sba# 60
+		sta future_secs
+		inc newMins
+
+second_if:		lda newMins
+		ada current_mins
+		ada elapsed_mins
+		cma# 60
+		jge second_else
+		sta future_mins
+		jmp third_if
+
+second_else:		sba# 60
+		sta future_mins
+		inc newHours
+
+third_if:		lda newHours
+		ada current_hours
+		ada elapsed_hours
+		cma# 24
+		jge third_else
+		sta future_hours
+		jmp end
+
+third_else:		sba# 24
+		sta future_hours
+
+end:		hlt
+
+
+		.equ @, $100
+current_hours: 	.word 17  ;100
+current_mins:		.word 34 ;101
+current_secs:		.word 56 ;102
+elapsed_hours:		.word 9  ;103
+elapsed_mins:		.word 48  ;104
+elapsed_secs:		.word 17  ;105
+future_hours:		.word 0  ;106
+future_mins:		.word 0  ;107
+future_secs:		.word 0  ;108
+newMins:		.word 0  ;109
+newHours:		.word 0  ;110
+
+
+
+

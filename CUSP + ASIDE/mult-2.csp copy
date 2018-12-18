@@ -1,0 +1,34 @@
+	lda n
+	cma# 0
+	jge loop
+	neg n
+	neg m
+
+loop: 	lda counter	
+	cma n		
+	jgt end	
+	lda sum
+	ada m			
+	sta sum
+	inc counter		
+	jmp loop	
+end: 	hlt	
+	
+
+counter:	.word $001
+	.equ @,$100	
+n:	.word -5	
+m:	.word -3
+sum: 	.word $000
+
+;negative_n:
+;	lda m		; checks only if n is negative
+;	cma# $000	; 
+;	jlt funcLoop
+	
+;funcLoop:
+;	lda counter
+	
+
+	
+	

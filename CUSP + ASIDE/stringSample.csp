@@ -1,0 +1,18 @@
+	ldx#	0
+	ldc oldString
+	stc previous
+	ldx# 1
+	ldc oldString
+	ldx# 0
+	stc current
+	ldc previous
+	stc current
+	
+
+end:	hlt
+	.equ @,$010
+oldString:	.char 'hi how 012345',strlen	       ; not a variable just a symbol so you need immediate addressing
+	.equ @,$015
+newString:	.blkw 5,0
+previous: 	.blkw 1, 0
+current:	.blkw 1, 0

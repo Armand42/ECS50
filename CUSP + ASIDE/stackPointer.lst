@@ -1,0 +1,25 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.              	.equ @, $000
+  2.              	.equ stackstart,$020
+  3.              	
+  4.              	.equ firstval,2	; offset on stack	
+  5.              	.equ secondval,1
+  6.              	.equ thirdval,0	; stack has 0 1 2
+  7.              
+  8.  000 020020  	lds# stackstart	; load the stack pointer
+  9.  001 080064  	psh# 100
+ 10.  002 0800C8  	psh# 200
+ 11.  003 08012C  	psh# 300
+ 12.              
+ 13.  004 FFF008  	tsf		; transfer from stack to frame
+ 14.  005 003002  	lda ! firstval	; load firstvalue which is 300, using framepointer
+ 15.  006 003001  	lda ! secondval
+ 16.  007 003000  	lda ! thirdval
+ 17.              
+ 18.  008 FFFFFF  	hlt
+ 19.              	
+
+                     SYMBOL TABLE CONTENTS
+
+000002 = FIRSTVAL        000001 = SECONDVAL       000020 = STACKSTART      
+000000 = THIRDVAL        

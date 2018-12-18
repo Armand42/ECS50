@@ -1,0 +1,57 @@
+	.equ @, $000
+	.equ stack, $300
+	
+	lds# stack
+	ldf# 0
+	ldx# 0
+	psh# $020 ; address of array
+	psh# strlen
+	psh# $029  ; address of the result
+	jsr swapcase
+	ads# 3
+	hlt
+
+	.equ @, $020
+inputString:  .char 'lEArN pYtHOn iN 30 YeaRS!',strlen
+	.equ @, $029
+outputString:	.blkw 9, 0 ; there are 25 characters, need 9 blocks
+
+
+
+; stack = [input, strlen, output, PC, FP] THIS IS JUST HERE TO REMEMBER THE POSITIONS OF EACH PARAMETER
+	.equ @, $100
+	.equ in, 4    ; A is position of array in stack
+	.equ size, 3
+	.equ out, 2
+	
+
+swapcase: 	pshf 
+	; [$010, strlen, $030, PC, FP]
+	tsf 
+
+loop:	cmx ! size ; compare XR with strlen
+	jge end
+	ldc* ! in   ; load the XR position in inputString 
+	stc* ! out  ; make a copy of that character into the outputString
+	; ACC contains the character, we check if that is lower
+	cma# 'a'
+	jlt checkUpper
+	cma# 'z'
+	jgt next
+	sba# 'a'-'A'
+	stc* ! out
+	jmp next
+
+checkUpper:	cma# 'A'
+	jlt next
+	cma# 'Z'
+	jgt next
+	ada# 'a'-'A'
+	stc* ! out
+	jmp next
+
+next:	adx# 1
+	jmp loop
+
+end:	popf ; pop FP    [array, m, n, arrayT, PC]
+	rtn   

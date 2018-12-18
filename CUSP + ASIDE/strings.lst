@@ -1,0 +1,23 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.  000 010000  	ldx#	0
+  2.  001 21000E  loop:	cmx# strlen
+  3.  002 4B2008  	jge  end
+  4.  003 502010  	ldc  oldString
+  5.  004 100001  	ada#	1
+  6.  005 512015  	stc newString
+  7.  006 110001  	adx#  1
+  8.  007 402001  	jmp	loop
+  9.  008 FFFFFF  end:	hlt
+ 10.              	.equ @,$010
+ 11.  010 686920  oldString:	.char 'hi how are you',strlen	       ; not a variable just a symbol so you need immediate addressing
+      011 686F77
+      012 206172
+      013 652079
+      014 6F7520
+ 12.              	.equ @,$015
+ 13.  015 000000  newString:	.blkw 5,0
+
+                     SYMBOL TABLE CONTENTS
+
+000008 = END             000001 = LOOP            000015 = NEWSTRING       
+000010 = OLDSTRING       00000E = STRLEN          

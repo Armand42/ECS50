@@ -1,0 +1,22 @@
+	.equ  @,$010
+	.equ num,2
+double:	pshf
+	tsf
+	lda ! num
+	ada ! num
+	psha
+	jsr square
+	popf
+	ads# 1
+	rtn
+
+	.equ @,$020
+	.equ value, 2
+square:	pshf
+	tsf
+	lda ! value
+	mul ! value
+	popf
+	rtn 
+	.end
+	

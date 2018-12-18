@@ -1,0 +1,58 @@
+;time.csp
+	.EQU h, $017
+	.EQU m, $034
+	.EQU s, $056
+	.EQU h1, $009
+	.EQU m1, $048
+	.EQU s1, $017
+	.EQU	@, $000
+	lda	seconds
+	ada	elap_s
+	sta	future_s
+	lda	minutes
+	ada	elap_m
+	sta	future_m
+	lda	hours
+	ada	elap_h
+	sta	future_h
+
+	lda	future_s
+	cma	$060
+	jge	seconds_check
+continue:	lda	future_m
+	cma	$060
+	jge	minutes_check	
+continue2:	lda	future_h
+	cma	$024
+	jge	hours_check
+end:	hlt
+
+	.EQU	@, $100
+hours:	.WORD	$017
+minutes:	.WORD $034
+seconds:	.WORD $056
+elap_h:	.WORD $009
+elap_m:	.WORD $048
+elap_s:	.WORD $017
+future_h:	.WORD $000
+future_m:	.WORD $000
+future_s:	.WORD $000
+
+seconds_check:	sba#	$060
+	sta 	future_s
+	lda	future_m
+	ada#	$001
+	sta	future_m
+	jmp	continue
+
+minutes_check:	sba#	$060
+	sta	future_s
+	lda	future_h
+	ada#	$001
+	sta	future_h	
+	jmp	continue2
+
+hours_check:	sba# 	$024
+	sta	future_h
+	jmp	end
+	

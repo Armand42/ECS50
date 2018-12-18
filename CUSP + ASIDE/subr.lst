@@ -1,0 +1,31 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.              ; subr.csp - showing basics of subrouting calling
+  2.              	.equ @,$000
+  3.              	.equ stack_start, $015	; put stack somewhere
+  4.  000 020015  	lds# stack_start
+  5.              	
+  6.  001 000003  	lda# 3	; crude parameter passing (dont do this)
+  7.  002 04200F  	sta num	; put val to be squared in known mem addr
+  8.  003 41200B  	jsr square	; call square subroutine
+  9.  004 00200A  	lda result	; expect new val in another known mem and use it
+ 10.              
+ 11.  005 000004  	lda# 4	; repeat
+ 12.  006 04200F  	sta num
+ 13.  007 41200B  	jsr square
+ 14.  008 00200A  	lda result
+ 15.              
+ 16.  009 FFFFFF  	hlt
+ 17.              
+ 18.              ; subroutine to compute the square of some argument
+ 19.  00A 000000  result:	.word
+ 20.  00B 00200F  square:	lda num
+ 21.  00C 18200F  	mul num
+ 22.  00D 04200A  	sta result
+ 23.  00E FFF040  	rtn
+ 24.  00F 000000  num:	.word
+ 25.              	
+
+                     SYMBOL TABLE CONTENTS
+
+00000F = NUM             00000A = RESULT          00000B = SQUARE          
+000015 = STACK_START     

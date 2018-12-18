@@ -1,0 +1,161 @@
+
+;;;;;;; load a print line after every row length
+;;;;;;; need to use timer code to delay output
+;;;;;;; print out generation: + generation number
+;;;;;;; if user ends 0 kill it
+;;;;;;; user input for number of generations/interrupts
+	.equ @,$000
+	.equ input_number, $001
+	.equ display, $317 
+	.equ kbd_stat,$000
+	.equ kbd_data,$001
+answ:	.word 0
+	.equ newline, $316
+	lds# $300	
+	ldf# 0
+looppp:	psh# prompt_len
+	psh# prompt
+	jsr put_str
+	ads# 2
+poll:	inb kbd_stat;stored into acc.
+	jge poll
+	inb kbd_data
+	outb display
+	cma# $30
+	jeq EOP
+	
+	
+
+	
+
+
+	
+print_loop:	ldx index
+	cmx size
+
+	; cmx col
+	; lda
+	jge looppp
+	txa
+	mod col
+	cma# 0
+	jeq nextline
+
+next1:	lda# 1
+	cma+ in_array
+	jeq print_star
+	ldx# 0
+	ldc dot
+	outb display
+	jmp next
+
+print_star:	ldx# 0
+	ldc star
+	outb display
+
+next:	inc index
+	jmp print_loop
+;end:	jmp EOP
+
+	.equ @,$500
+in_array:	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+
+	.word 0
+	.word 0
+	.word 1
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+
+	.word 0
+	.word 0
+	.word 0
+	.word 1
+	.word 0
+	.word 0
+	.word 0
+	
+	.word 0
+	.word 1
+	.word 1
+	.word 1
+	.word 0
+	.word 0
+	.word 0
+
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.equ @,$040
+out_array:	.blkw 42,0
+index: 	.word 0
+size: 	.word 42
+col:	.word 7
+row:	.word 6
+temp:	.word 0
+prompt: .char	'How many new generations would you like to print (enter 0 to end)? ', prompt_len 
+generation: .char 'Generation: ',gen_len 	
+star: .char '*', star_len
+dot: .char '.', dot_len
+zero_input: .char '\lf\crEnd of program.',end_program_len 
+lineSpace: .char '\lf',lineMarker
+
+notcr:	.char '\cr',why
+
+
+
+nextLine:	ldx# 0
+	ldc lineSpace
+	outb display
+	ldc notcr
+	outb display
+	jmp next1	
+
+
+	
+
+	.equ @,$100
+	.equ chars,3
+	.equ string,2
+	.equ crt_data,$317
+	
+put_str:	pshf
+	tsf
+	psha
+	pshx
+	ldx# 0
+
+p_loop:	ldc* ! string
+	outb	crt_data
+	aoc ! chars
+	jlt p_loop
+
+	popx
+	popa
+	popf
+	rtn
+
+EOP:	psh# end_program_len
+	psh# zero_input
+	jsr put_str
+	ads# 2
+	hlt

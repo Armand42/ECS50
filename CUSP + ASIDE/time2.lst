@@ -1,0 +1,69 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.              ;time.csp
+  2.              	.EQU h, $017
+  3.              	.EQU m, $034
+  4.              	.EQU s, $056
+  5.              	.EQU h1, $009
+  6.              	.EQU m1, $048
+  7.              	.EQU s1, $017
+  8.              	.EQU	@, $000
+  9.  000 002102  	lda	seconds
+ 10.  001 102105  	ada	elap_s
+ 11.  002 042108  	sta	future_s
+ 12.  003 002101  	lda	minutes
+ 13.  004 102104  	ada	elap_m
+ 14.  005 042107  	sta	future_m
+ 15.  006 002100  	lda	hours
+ 16.  007 102103  	ada	elap_h
+ 17.  008 042106  	sta	future_h
+ 18.              
+ 19.  009 002108  	lda	future_s
+ 20.  00A 202060  	cma	$060
+ 21.  00B 4B2109  	jge	seconds_check
+ 22.  00C 002107  continue:	lda	future_m
+ 23.  00D 202060  	cma	$060
+ 24.  00E 4B210F  	jge	minutes_check	
+ 25.  00F 002106  continue2:	lda	future_h
+ 26.  010 202024  	cma	$024
+ 27.  011 4B2115  	jge	hours_check
+ 28.  012 FFFFFF  end:	hlt
+ 29.              
+ 30.              	.EQU	@, $100
+ 31.  100 000017  hours:	.WORD	$017
+ 32.  101 000034  minutes:	.WORD $034
+ 33.  102 000056  seconds:	.WORD $056
+ 34.  103 000009  elap_h:	.WORD $009
+ 35.  104 000048  elap_m:	.WORD $048
+ 36.  105 000017  elap_s:	.WORD $017
+ 37.  106 000000  future_h:	.WORD $000
+ 38.  107 000000  future_m:	.WORD $000
+ 39.  108 000000  future_s:	.WORD $000
+ 40.              
+ 41.  109 140060  seconds_check:	sba#	$060
+ 42.  10A 042108  	sta 	future_s
+ 43.  10B 002107  	lda	future_m
+ 44.  10C 100001  	ada#	$001
+ 45.  10D 042107  	sta	future_m
+ 46.  10E 40200C  	jmp	continue
+ 47.              
+ 48.  10F 140060  minutes_check:	sba#	$060
+ 49.  110 042108  	sta	future_s
+ 50.  111 002106  	lda	future_h
+ 51.  112 100001  	ada#	$001
+ 52.  113 042106  	sta	future_h	
+ 53.  114 40200F  	jmp	continue2
+ 54.              
+ 55.  115 140024  hours_check:	sba# 	$024
+ 56.  116 042106  	sta	future_h
+ 57.  117 402012  	jmp	end
+ 58.              	
+
+                     SYMBOL TABLE CONTENTS
+
+00000C = CONTINUE        00000F = CONTINUE2       000103 = ELAP_H          
+000104 = ELAP_M          000105 = ELAP_S          000012 = END             
+000106 = FUTURE_H        000107 = FUTURE_M        000108 = FUTURE_S        
+000017 = H               000009 = H1              000100 = HOURS           
+000115 = HOURS_CHECK     000034 = M               000048 = M1              
+000101 = MINUTES         00010F = MINUTES_CHECK   000056 = S               
+000017 = S1              000102 = SECONDS         000109 = SECONDS_CHECK   

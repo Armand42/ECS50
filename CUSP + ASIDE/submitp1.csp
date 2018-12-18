@@ -1,0 +1,35 @@
+	.equ	@,$000	
+	lda NUM
+	sba# 1
+	ada BASE
+	sta maxINDEX
+	
+	lda BASE
+	sta INDEX
+
+LOOP:	ldx INDEX
+	sbx BASE
+	lda+ ARR
+	cma BIG
+	jle INC_INDEX
+	sta BIG
+INC_INDEX:	inc INDEX
+	lda INDEX
+	cma maxINDEX
+	jle LOOP
+	hlt
+
+maxINDEX:	.word 0
+INDEX:	.word 0
+BIG:	.word -1
+
+NUM:	.word 6
+BASE:	.word 5
+ARR:	.word 17
+	.word 5		 
+	.word 10
+	.word 30
+	.word	7
+	.word 9
+	
+

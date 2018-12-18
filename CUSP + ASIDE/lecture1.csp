@@ -1,0 +1,7 @@
+	LDA $004
+	ADA $005
+	STA $006
+	HLT
+	
+	.word $003
+	.word $007

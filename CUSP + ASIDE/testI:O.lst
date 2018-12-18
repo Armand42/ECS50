@@ -1,0 +1,212 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.              
+  2.              ;;;;;;; load a print line after every row length
+  3.              ;;;;;;; need to use timer code to delay output
+  4.              ;;;;;;; print out generation: + generation number
+  5.              ;;;;;;; if user ends 0 kill it
+  6.              ;;;;;;; user input for number of generations/interrupts
+  7.              	.equ @,$000
+  8.              	.equ input_number, $001
+  9.              	.equ display, $317 
+ 10.              	.equ kbd_stat,$000
+ 11.              	.equ kbd_data,$001
+ 12.  000 000000  answ:	.word 0
+ 13.              	.equ newline, $316
+ 14.  001 020300  	lds# $300	
+ 15.  002 030000  	ldf# 0
+ 16.  003 080045  looppp:	psh# prompt_len
+ 17.  004 08006F  	psh# prompt
+ 18.  005 412100  	jsr put_str
+ 19.  006 120002  	ads# 2
+ 20.  007 702000  poll:	inb kbd_stat;stored into acc.
+ 21.  008 4B2007  	jge poll
+ 22.  009 702001  	inb kbd_data
+ 23.  00A 712317  	outb display
+ 24.  00B 200030  	cma# $30
+ 25.  00C 48210D  	jeq EOP
+ 26.              	
+ 27.              	
+ 28.              
+ 29.              	
+ 30.              
+ 31.              
+ 32.              	
+ 33.  00D 01206A  print_loop:	ldx index
+ 34.  00E 21206B  	cmx size
+ 35.              
+ 36.              	; cmx col
+ 37.              	; lda
+ 38.  00F 4B2003  	jge looppp
+ 39.  010 FFF003  	txa
+ 40.  011 1A206C  	mod col
+ 41.  012 200000  	cma# 0
+ 42.  013 482094  	jeq nextline
+ 43.              
+ 44.  014 000001  next1:	lda# 1
+ 45.  015 204500  	cma+ in_array
+ 46.  016 48201B  	jeq print_star
+ 47.  017 010000  	ldx# 0
+ 48.  018 50208B  	ldc dot
+ 49.  019 712317  	outb display
+ 50.  01A 40201E  	jmp next
+ 51.              
+ 52.  01B 010000  print_star:	ldx# 0
+ 53.  01C 50208A  	ldc star
+ 54.  01D 712317  	outb display
+ 55.              
+ 56.  01E 1B206A  next:	inc index
+ 57.  01F 40200D  	jmp print_loop
+ 58.              ;end:	jmp EOP
+ 59.              
+ 60.              	.equ @,$500
+ 61.  500 000000  in_array:	.word 0
+ 62.  501 000000  	.word 0
+ 63.  502 000000  	.word 0
+ 64.  503 000000  	.word 0
+ 65.  504 000000  	.word 0
+ 66.  505 000000  	.word 0
+ 67.  506 000000  	.word 0
+ 68.              
+ 69.  507 000000  	.word 0
+ 70.  508 000000  	.word 0
+ 71.  509 000001  	.word 1
+ 72.  50A 000000  	.word 0
+ 73.  50B 000000  	.word 0
+ 74.  50C 000000  	.word 0
+ 75.  50D 000000  	.word 0
+ 76.              
+ 77.  50E 000000  	.word 0
+ 78.  50F 000000  	.word 0
+ 79.  510 000000  	.word 0
+ 80.  511 000001  	.word 1
+ 81.  512 000000  	.word 0
+ 82.  513 000000  	.word 0
+ 83.  514 000000  	.word 0
+ 84.              	
+ 85.  515 000000  	.word 0
+ 86.  516 000001  	.word 1
+ 87.  517 000001  	.word 1
+ 88.  518 000001  	.word 1
+ 89.  519 000000  	.word 0
+ 90.  51A 000000  	.word 0
+ 91.  51B 000000  	.word 0
+ 92.              
+ 93.  51C 000000  	.word 0
+ 94.  51D 000000  	.word 0
+ 95.  51E 000000  	.word 0
+ 96.  51F 000000  	.word 0
+ 97.  520 000000  	.word 0
+ 98.  521 000000  	.word 0
+ 99.  522 000000  	.word 0
+100.              
+101.  523 000000  	.word 0
+102.  524 000000  	.word 0
+103.  525 000000  	.word 0
+104.  526 000000  	.word 0
+105.  527 000000  	.word 0
+106.  528 000000  	.word 0
+107.  529 000000  	.word 0
+108.              	.equ @,$040
+109.  040 000000  out_array:	.blkw 42,0
+110.  06A 000000  index: 	.word 0
+111.  06B 00002A  size: 	.word 42
+112.  06C 000007  col:	.word 7
+113.  06D 000006  row:	.word 6
+114.  06E 000000  temp:	.word 0
+115.  06F 486F77  prompt: .char	'How many new generations would you like to print (enter 0 to end)?\lf\cr ', prompt_len 
+      070 206D61
+      071 6E7920
+      072 6E6577
+      073 206765
+      074 6E6572
+      075 617469
+      076 6F6E73
+      077 20776F
+      078 756C64
+      079 20796F
+      07A 75206C
+      07B 696B65
+      07C 20746F
+      07D 207072
+      07E 696E74
+      07F 202865
+      080 6E7465
+      081 722030
+      082 20746F
+      083 20656E
+      084 64293F
+      085 0A0D20
+      086 47656E
+      087 657261
+116.  086 47656E  generation: .char 'Generation: ',gen_len 	
+      087 657261
+      088 74696F
+      089 6E3A20
+117.  08A 2A2020  star: .char '*', star_len
+118.  08B 2E2020  dot: .char '.', dot_len
+119.  08C 0A0D45  zero_input: .char '\lf\crEnd of program.',end_program_len 
+      08D 6E6420
+      08E 6F6620
+      08F 70726F
+      090 677261
+      091 6D2E20
+      092 0A2020
+120.  092 0A2020  lineSpace: .char '\lf',lineMarker
+121.              
+122.  093 0D2020  notcr:	.char '\cr',why
+123.              
+124.              
+125.              
+126.  094 010000  nextLine:	ldx# 0
+127.  095 502092  	ldc lineSpace
+128.  096 712317  	outb display
+129.  097 502093  	ldc notcr
+130.  098 712317  	outb display
+131.  099 402014  	jmp next1	
+132.              
+133.              
+134.              	
+135.              
+136.              	.equ @,$100
+137.              	.equ chars,3
+138.              	.equ string,2
+139.              	.equ crt_data,$317
+140.              	
+141.  100 FFF012  put_str:	pshf
+142.  101 FFF008  	tsf
+143.  102 FFF010  	psha
+144.  103 FFF011  	pshx
+145.  104 010000  	ldx# 0
+146.              
+147.  105 507002  p_loop:	ldc* ! string
+148.  106 712317  	outb	crt_data
+149.  107 603003  	aoc ! chars
+150.  108 4A2105  	jlt p_loop
+151.              
+152.  109 FFF014  	popx
+153.  10A FFF013  	popa
+154.  10B FFF015  	popf
+155.  10C FFF040  	rtn
+156.              
+157.  10D 080011  EOP:	psh# end_program_len
+158.  10E 08008C  	psh# zero_input
+159.  10F 412100  	jsr put_str
+160.  110 120002  	ads# 2
+161.  111 FFFFFF  	hlt
+
+                     SYMBOL TABLE CONTENTS
+
+000000 = ANSW            000003 = CHARS           00006C = COL             
+000317 = CRT_DATA        000317 = DISPLAY         00008B = DOT             
+000001 = DOT_LEN         000011 = END_PROGRAM_LEN 00010D = EOP             
+000086 = GENERATION      00000C = GEN_LEN         00006A = INDEX           
+000001 = INPUT_NUMBER    000500 = IN_ARRAY        000001 = KBD_DATA        
+000000 = KBD_STAT        000001 = LINEMARKER      000092 = LINESPACE       
+000003 = LOOPPP          000316 = NEWLINE         00001E = NEXT            
+000014 = NEXT1           000094 = NEXTLINE        000093 = NOTCR           
+000040 = OUT_ARRAY       000007 = POLL            00000D = PRINT_LOOP      
+00001B = PRINT_STAR      00006F = PROMPT          000045 = PROMPT_LEN      
+000100 = PUT_STR         000105 = P_LOOP          00006D = ROW             
+00006B = SIZE            00008A = STAR            000001 = STAR_LEN        
+000002 = STRING          00006E = TEMP            000001 = WHY             
+00008C = ZERO_INPUT      

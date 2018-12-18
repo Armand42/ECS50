@@ -1,0 +1,30 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.              	.equ @, $000
+  2.  000 020010  	lds# $010	; load stack register with address
+  3.  001 080001  	psh# 1
+  4.  002 080002  	psh# 2
+  5.  003 080003  	psh# 3
+  6.  004 FFF013  	popa 
+  7.  005 FFF013  	popa
+  8.  006 FFF013  	popa	; stack overflow
+  9.  007 FFF013  	popa
+ 10.  008 FFF013  	popa
+ 11.  009 FFF013  	popa
+ 12.  00A FFFFFF  	hlt
+ 13.              	.end
+ 14.              
+ 15.              
+ 16.              
+ 17.              ; stack pointer needs to finish where it started after program runs
+ 18.              
+ 19.              
+ 20.              
+ 21.              
+ 22.              ;$007
+ 23.              ;$008 3
+ 24.              ;$009 2
+ 25.              ;$00A 1
+ 26.              ;$00B
+
+                     SYMBOL TABLE CONTENTS
+

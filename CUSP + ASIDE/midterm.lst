@@ -1,0 +1,13 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.  000 000018  lda# $018
+  2.  001 042007  sta $007
+  3.  002 1B2007  inc $007
+  4.  003 202008  cma $008
+  5.  004 4A2006  jlt $006
+  6.  005 1B2007  inc $007
+  7.  006 FFFFFF  hlt
+  8.  007 040550  .word $040550
+  9.  008 000012  .word $000012
+
+                     SYMBOL TABLE CONTENTS
+

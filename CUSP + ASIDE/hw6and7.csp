@@ -1,0 +1,297 @@
+	.equ @,$000
+	.equ stack,$040
+	.equ old,$060
+	.equ new,$100
+	.equ rows,6
+	.equ cols,7
+	lds# stack
+	ldf# 0
+	ldx# $FFF
+	psh# old
+	psh# rows
+	psh# cols
+	psh# new
+	jsr generation
+	ads# 4
+	hlt
+
+	.equ @,$060
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+
+	.word 0
+	.word 1
+	.word 0
+	.word 1
+	.word 0
+	.word 0
+	.word 0
+	
+	.word 0
+	.word 0
+	.word 1
+	.word 1
+	.word 0
+	.word 0
+	.word 0
+
+	.word 0
+	.word 0
+	.word 1
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	;;;;;;;;;;;;;
+	;.word 0
+	;.word 1
+	;.word 1
+	;.word 0
+	;.word 1
+	;.word 1
+	;.word 1
+	;.word 0
+	;.word 0
+	;.word 1
+	;.word 0
+	;.word 0
+	;.word 1
+	;.word 1
+	;.word 1
+	.equ @,$100
+	.blkw 15,0
+
+
+;main SR
+
+	.equ @,$400
+	.equ total,1
+	.equ newarr, 3
+	.equ col, 4
+	.equ row, 5
+	.equ oldarr,6
+temp:	.word 0
+totaln:	.word 0
+generation:	psh totaln
+	pshf
+	tsf
+loop:	adx# 1
+	lda# 0
+	sta ! total
+	lda ! row
+	mul ! col
+	sta temp
+	cmx temp
+	jge end
+;corners
+	cmx# 0
+	jeq TLC
+	lda ! col
+	sba# 1
+	sta temp
+	cmx temp
+	jeq TRC
+	lda ! row
+	mul ! col
+	sba ! col
+	sta temp
+	cmx temp
+	jeq BLC
+	lda temp
+	ada ! col
+	sba# 1
+	sta temp
+	cmx temp
+	jeq BRC
+;sides
+	cmx ! col
+	jlt	top	 
+	lda ! col
+	sba# 1
+	sta temp
+	txa
+	mod ! col
+	cma temp
+	jeq right
+	lda ! row
+	mul ! col
+	sba ! col
+	sta temp
+	cmx temp
+	jgt bot
+	txa
+	mod ! col
+	cma# 0
+	jeq left
+; everything else
+	sbx# 1
+	jsr compare
+	sbx ! col
+	jsr compare
+	adx# 1
+	jsr compare
+	adx# 1
+	jsr compare
+	adx ! col
+	jsr compare
+	adx ! col
+	jsr compare
+	sbx# 1
+	jsr compare
+	sbx# 1
+	jsr compare
+	sbx ! col
+	adx# 1
+
+write:	lda ! total
+	cma# 1
+	jle dies
+	cma# 2
+	jeq stays
+	cma# 3
+	jeq lives
+	cma# 3
+	jgt dies
+
+dies:	lda# 0
+	sta& ! newarr
+	jmp loop
+lives:	lda# 1
+	sta& ! newarr
+	jmp loop
+stays:	lda& ! oldarr
+	sta& ! newarr
+	jmp loop
+
+
+
+	
+compare:	.equ olda,8
+	.equ tot,3
+	pshf
+	tsf
+	lda& ! olda
+	cma# 0
+	jgt addneighbour
+next:	popf
+	rtn
+
+addneighbour:	inc ! tot
+	jmp next
+
+end:
+	popf
+	ads# 1
+	rtn
+;top left corner when xr = 0
+TLC:	ldx# 1
+	jsr compare
+	adx ! col
+	jsr compare
+	sbx# 1
+	jsr compare
+	ldx# 0
+	jmp write
+
+TRC:	sbx# 1
+	jsr compare
+	adx ! col
+	jsr compare
+	adx# 1
+	jsr compare
+	lda ! col
+	sba# 1
+	tax
+	jmp write
+	
+
+BLC:	sbx ! col
+	jsr compare
+	adx# 1
+	jsr compare
+	adx ! col
+	jsr compare
+	sbx# 1
+	jmp write
+
+BRC:	sbx# 1
+	jsr compare
+	sbx ! col
+	jsr compare
+	adx# 1
+	jsr compare
+	adx ! col
+	jmp write
+
+top:	sbx# 1
+	jsr compare
+	adx ! col
+	jsr compare
+	adx# 1
+	jsr compare
+	adx# 1
+	jsr compare
+	sbx ! col
+	jsr compare
+	sbx# 1
+	jmp write
+
+right:	sbx ! col
+	jsr compare
+	sbx# 1
+	jsr compare
+	adx ! col
+	jsr compare
+	adx ! col
+	jsr compare
+	adx# 1
+	jsr compare
+	sbx ! col
+	jmp write
+
+bot:	sbx# 1
+	jsr compare
+	sbx ! col
+	jsr compare
+	adx# 1
+	jsr compare
+	adx# 1
+	jsr compare
+	adx ! col
+	jsr compare
+	sbx# 1
+	jmp write
+
+left:	sbx ! col
+	jsr compare
+	adx# 1
+	jsr compare
+	adx ! col
+	jsr compare
+	adx ! col
+	jsr compare
+	sbx# 1
+	jsr compare
+	sbx ! col
+	jmp write

@@ -1,0 +1,98 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.              	.equ @, $000
+  2.              	.equ stack, $300
+  3.              	
+  4.  000 020300  	lds# stack
+  5.  001 030000  	ldf# 0
+  6.  002 010000  	ldx# 0
+  7.  003 080020  	psh# $020 ; address of array
+  8.  004 080017  	psh# strlen
+  9.  005 080029  	psh# $029  ; address of the result
+ 10.  006 412100  	jsr title
+ 11.  007 120003  	ads# 3
+ 12.  008 FFFFFF  	hlt
+ 13.              
+ 14.              	.equ @, $020
+ 15.  020 20206C  inputString:  .char  '  lEArN  iN 30 yeaRS !e',strlen
+      021 454172
+      022 4E2020
+      023 694E20
+      024 333020
+      025 796561
+      026 525320
+      027 216520
+ 16.              	.equ @, $029
+ 17.  029 000000  outputString:	.blkw 9, 0 ; there are 25 characters, need 9 blocks
+ 18.              
+ 19.              ; stack = [input, strlen, output, PC, FP] THIS IS JUST HERE TO REMEMBER THE POSITIONS OF EACH PARAMETER
+ 20.              	.equ @, $100
+ 21.              	.equ in, 4    ; A is position of array in stack
+ 22.              	.equ size, 3
+ 23.              	.equ out, 2
+ 24.              	
+ 25.              
+ 26.  100 FFF012  title: 	pshf ; [$010, strlen, $030, PC, FP]
+ 27.  101 FFF008  	tsf 
+ 28.              
+ 29.  102 01212C  loop:	ldx x
+ 30.  103 213003  	cmx ! size ; compare XR with strlen
+ 31.  104 4B212A  	jge end
+ 32.  105 507004  	ldc* ! in   ; load the XR position in inputString 
+ 33.  106 517002  	stc* ! out
+ 34.  107 010000  	ldx# 0
+ 35.  108 51212E  	stc current_char
+ 36.              	
+ 37.              	; if x == 0, go to toUpper
+ 38.  109 01212C  	ldx x
+ 39.  10A 210000  	cmx# 0
+ 40.  10B 48211A  	jeq toUpper
+ 41.              	; if previous_char == ' ', go to toUpper
+ 42.  10C 010000  	ldx# 0
+ 43.  10D 50212D  	ldc previous_char
+ 44.  10E 200020  	cma# ' '
+ 45.  10F 48211A  	jeq toUpper
+ 46.              	
+ 47.              	; if current_char is upper, set it to lower
+ 48.  110 010000  	ldx# 0
+ 49.  111 50212E  	ldc current_char
+ 50.  112 200041  	cma# 'A'
+ 51.  113 4A2123  	jlt next
+ 52.  114 20005A  	cma# 'Z'
+ 53.  115 4D2123  	jgt next
+ 54.  116 100020  	ada# 'a'-'A'
+ 55.  117 01212C  	ldx x
+ 56.  118 517002  	stc* ! out
+ 57.  119 402123  	jmp next
+ 58.              
+ 59.  11A 010000  toUpper:	ldx# 0
+ 60.  11B 50212E  	ldc current_char
+ 61.  11C 200061  	cma# 'a'
+ 62.  11D 4A2123  	jlt next
+ 63.  11E 20007A  	cma# 'z'
+ 64.  11F 4D2123  	jgt next
+ 65.  120 140020  	sba# 'a'-'A'
+ 66.  121 01212C  	ldx x
+ 67.  122 517002  	stc* ! out
+ 68.              
+ 69.  123 010000  next:	ldx# 0
+ 70.  124 50212E  	ldc current_char
+ 71.  125 51212D  	stc previous_char
+ 72.  126 01212C  	ldx x
+ 73.  127 110001  	adx# 1
+ 74.  128 05212C  	stx x
+ 75.  129 402102  	jmp loop
+ 76.              
+ 77.  12A FFF015  end:	popf ; pop FP    [array, m, n, arrayT, PC]
+ 78.  12B FFF040  	rtn   
+ 79.              	
+ 80.  12C 000000  x: .word 0 ; save the XR
+ 81.  12D 000000  previous_char: .blkw 1, 0
+ 82.  12E 000000  current_char: .blkw 1, 0
+
+                     SYMBOL TABLE CONTENTS
+
+00012E = CURRENT_CHAR    00012A = END             000004 = IN              
+000020 = INPUTSTRING     000102 = LOOP            000123 = NEXT            
+000002 = OUT             000029 = OUTPUTSTRING    00012D = PREVIOUS_CHAR   
+000003 = SIZE            000300 = STACK           000017 = STRLEN          
+000100 = TITLE           00011A = TOUPPER         00012C = X               

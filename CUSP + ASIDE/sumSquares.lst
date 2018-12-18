@@ -1,0 +1,26 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.              ; compute sum of squares of ints 1 to n
+  2.  000 402100  	jmp	sos	; hardcode jump to start at 0 / jumps to code that starts at 100
+  3.              	.equ 	@,$100	; starts at address 100 then continues to 101,102	
+  4.  100 002200  sos:	lda 	counter	; class example while loop refer to c++ code
+  5.  101 202202  loop:	cma	n	; test if counter > n
+  6.  102 4D210A  	jgt 	end
+  7.  103 182200  	mul	counter
+  8.  104 102201  	ada	sum
+  9.  105 042201  	sta	sum
+ 10.  106 002200  	lda 	counter
+ 11.  107 100001  	ada#	$001
+ 12.  108 042200  	sta   counter
+ 13.  109 402101  	jmp	loop
+ 14.  10A FFFFFF  end:	hlt
+ 15.              	.equ	@,$200		; place counter at address 200
+ 16.  200 000001  counter:	.word	$001		; this goes into 201
+ 17.  201 000000  sum:	.word $000		; this goes into 202
+ 18.  202 000005  n:	.word	$005		; this goes into 203
+ 19.              
+ 20.              
+
+                     SYMBOL TABLE CONTENTS
+
+000200 = COUNTER         00010A = END             000101 = LOOP            
+000202 = N               000100 = SOS             000201 = SUM             

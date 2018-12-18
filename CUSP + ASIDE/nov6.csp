@@ -1,0 +1,14 @@
+.equ @,$000
+.equ stackstart,$020
+.equ thirdval, 0
+.equ secondval, 1
+.equ firstval, 2
+lds# stackstart
+psh# 100
+psh# 200
+psh# 300
+tsf
+lda ! thirdval
+lda ! secondval
+lda ! firstval; load first value to acc
+hlt

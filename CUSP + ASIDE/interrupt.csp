@@ -1,0 +1,33 @@
+;interrupts
+	.equ @,$000
+	.equ stackstart,$030
+	.equ enable_ints,$80
+	.equ kbd_ctrl,$000
+	.equ kbd_data,$001
+	.equ crt_data,$317
+	.equ ex_point,$21
+
+	lds# stackstart
+	lda# enable_ints
+	outb kbd_ctrl
+
+	sie
+loop:	nop
+	nop
+	nop
+	nop
+	
+	
+	
+	
+	jmp loop
+
+kbd_int:	psha
+	inb kbd_data
+	lda# ex_point
+	outb crt_data
+	popa
+	irtn
+
+.equ @,$FF8
+.word kbd_int

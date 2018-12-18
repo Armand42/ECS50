@@ -1,0 +1,450 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.              	.equ @,$000
+  2.              	.equ stack,$080
+  3.              	.equ old,$060
+  4.              	.equ new,$100
+  5.              	.equ rows,3
+  6.              	.equ cols,5
+  7.              ;______________I/O Display ports_____________________
+  8.              	.equ display,$317
+  9.              	.equ tim_ctrl,$030
+ 10.              	.equ tim_valu,$031
+ 11.              	.equ reset_ready_bit,$040
+ 12.              	.equ start_after_load,$010
+ 13.              	.equ enable_ints,$80
+ 14.              	.equ kbd_ctrl,$000
+ 15.              	.equ kbd_data,$001
+ 16.              	.equ put_str,$E05
+ 17.              	.equ tim_stat,$030
+ 18.              
+ 19.  000 FFF033  	CIE
+ 20.  001 020080  	lds# stack
+ 21.  002 030000  	ldf# 0
+ 22.  003 010FFF  	ldx# $FFF
+ 23.  004 080060  	psh# old
+ 24.  005 080003  	psh# rows
+ 25.  006 080005  	psh# cols
+ 26.  007 080100  	psh# new
+ 27.              	
+ 28.  008 4124B5  askagain:	jsr askq
+ 29.              	;jsr generation
+ 30.  009 4124CA  	jsr printcurr
+ 31.  00A 402008  	jmp askagain
+ 32.              	
+ 33.              ;SIE 
+ 34.              ;CIE 
+ 35.              ;IRTN
+ 36.  00B 120004  	ads# 4
+ 37.              
+ 38.  00C FFFFFF  	hlt
+ 39.              
+ 40.              	.equ @,$060
+ 41.  060 000000  	.word 0
+ 42.  061 000001  	.word 1
+ 43.  062 000001  	.word 1
+ 44.  063 000000  	.word 0
+ 45.  064 000001  	.word 1
+ 46.  065 000001  	.word 1
+ 47.  066 000001  	.word 1
+ 48.  067 000000  	.word 0
+ 49.  068 000000  	.word 0
+ 50.  069 000001  	.word 1
+ 51.  06A 000000  	.word 0
+ 52.  06B 000000  	.word 0
+ 53.  06C 000001  	.word 1
+ 54.  06D 000001  	.word 1
+ 55.  06E 000001  	.word 1
+ 56.              	.equ @,$100
+ 57.  100 000000  	.blkw 15,0
+ 58.              
+ 59.              
+ 60.              ;_________________DO NOT TOUCH_______________
+ 61.              
+ 62.              	.equ @,$400
+ 63.              	.equ total,4
+ 64.              	.equ newarr, 6
+ 65.              	.equ col, 7
+ 66.              	.equ row, 8
+ 67.              	.equ oldarr,9
+ 68.  400 000000  temp:	.word 0
+ 69.  401 000000  totaln:	.word 0
+ 70.  402 082401  generation:	psh totaln
+ 71.  403 FFF012  	pshf
+ 72.  404 FFF008  	tsf
+ 73.  405 110001  loop:	adx# 1
+ 74.  406 000000  	lda# 0
+ 75.  407 043004  	sta ! total
+ 76.  408 003008  	lda ! row
+ 77.  409 183007  	mul ! col
+ 78.  40A 042400  	sta temp
+ 79.  40B 212400  	cmx temp
+ 80.  40C 4B2460  	jge end
+ 81.              ;corners
+ 82.  40D 210000  	cmx# 0
+ 83.  40E 482463  	jeq TLC
+ 84.  40F 003007  	lda ! col
+ 85.  410 140001  	sba# 1
+ 86.  411 042400  	sta temp
+ 87.  412 212400  	cmx temp
+ 88.  413 48246B  	jeq TRC
+ 89.  414 003008  	lda ! row
+ 90.  415 183007  	mul ! col
+ 91.  416 143007  	sba ! col
+ 92.  417 042400  	sta temp
+ 93.  418 212400  	cmx temp
+ 94.  419 482475  	jeq BLC
+ 95.  41A 002400  	lda temp
+ 96.  41B 103007  	ada ! col
+ 97.  41C 140001  	sba# 1
+ 98.  41D 042400  	sta temp
+ 99.  41E 212400  	cmx temp
+100.  41F 48247D  	jeq BRC
+101.              ;sides
+102.  420 213007  	cmx ! col
+103.  421 4A2485  	jlt	top	 
+104.  422 003007  	lda ! col
+105.  423 140001  	sba# 1
+106.  424 042400  	sta temp
+107.  425 FFF003  	txa
+108.  426 1A3007  	mod ! col
+109.  427 202400  	cma temp
+110.  428 482491  	jeq right
+111.  429 003008  	lda ! row
+112.  42A 183007  	mul ! col
+113.  42B 143007  	sba ! col
+114.  42C 042400  	sta temp
+115.  42D 212400  	cmx temp
+116.  42E 4D249D  	jgt bot
+117.  42F FFF003  	txa
+118.  430 1A3007  	mod ! col
+119.  431 200000  	cma# 0
+120.  432 4824A9  	jeq left
+121.              ; everything else
+122.  433 150001  	sbx# 1
+123.  434 412457  	jsr compare
+124.  435 153007  	sbx ! col
+125.  436 412457  	jsr compare
+126.  437 110001  	adx# 1
+127.  438 412457  	jsr compare
+128.  439 110001  	adx# 1
+129.  43A 412457  	jsr compare
+130.  43B 113007  	adx ! col
+131.  43C 412457  	jsr compare
+132.  43D 113007  	adx ! col
+133.  43E 412457  	jsr compare
+134.  43F 150001  	sbx# 1
+135.  440 412457  	jsr compare
+136.  441 150001  	sbx# 1
+137.  442 412457  	jsr compare
+138.  443 153007  	sbx ! col
+139.  444 110001  	adx# 1
+140.              
+141.  445 003004  write:	lda ! total
+142.  446 200001  	cma# 1
+143.  447 4C244E  	jle dies
+144.  448 200002  	cma# 2
+145.  449 482454  	jeq stays
+146.  44A 200003  	cma# 3
+147.  44B 482451  	jeq lives
+148.  44C 200003  	cma# 3
+149.  44D 4D244E  	jgt dies
+150.              
+151.  44E 000000  dies:	lda# 0
+152.  44F 049006  	sta& ! newarr
+153.  450 402405  	jmp loop
+154.  451 000001  lives:	lda# 1
+155.  452 049006  	sta& ! newarr
+156.  453 402405  	jmp loop
+157.  454 009009  stays:	lda& ! oldarr
+158.  455 049006  	sta& ! newarr
+159.  456 402405  	jmp loop
+160.              
+161.              
+162.              
+163.              	
+164.              compare:	.equ olda,11
+165.              	.equ tot,6
+166.  457 FFF012  	pshf
+167.  458 FFF008  	tsf
+168.  459 00900B  	lda& ! olda
+169.  45A 200000  	cma# 0
+170.  45B 4D245E  	jgt addneighbour
+171.  45C FFF015  next:	popf
+172.  45D FFF040  	rtn
+173.              
+174.  45E 1B3006  addneighbour:	inc ! tot
+175.  45F 40245C  	jmp next
+176.              
+177.              end:
+178.  460 FFF015  	popf
+179.  461 120001  	ads# 1
+180.  462 FFF040  	rtn
+181.              ;top left corner when xr = 0
+182.  463 010001  TLC:	ldx# 1
+183.  464 412457  	jsr compare
+184.  465 113007  	adx ! col
+185.  466 412457  	jsr compare
+186.  467 150001  	sbx# 1
+187.  468 412457  	jsr compare
+188.  469 010000  	ldx# 0
+189.  46A 402445  	jmp write
+190.              
+191.  46B 150001  TRC:	sbx# 1
+192.  46C 412457  	jsr compare
+193.  46D 113007  	adx ! col
+194.  46E 412457  	jsr compare
+195.  46F 110001  	adx# 1
+196.  470 412457  	jsr compare
+197.  471 003007  	lda ! col
+198.  472 140001  	sba# 1
+199.  473 FFF000  	tax
+200.  474 402445  	jmp write
+201.              	
+202.              
+203.  475 153007  BLC:	sbx ! col
+204.  476 412457  	jsr compare
+205.  477 110001  	adx# 1
+206.  478 412457  	jsr compare
+207.  479 113007  	adx ! col
+208.  47A 412457  	jsr compare
+209.  47B 150001  	sbx# 1
+210.  47C 402445  	jmp write
+211.              
+212.  47D 150001  BRC:	sbx# 1
+213.  47E 412457  	jsr compare
+214.  47F 153007  	sbx ! col
+215.  480 412457  	jsr compare
+216.  481 110001  	adx# 1
+217.  482 412457  	jsr compare
+218.  483 113007  	adx ! col
+219.  484 402445  	jmp write
+220.              
+221.  485 150001  top:	sbx# 1
+222.  486 412457  	jsr compare
+223.  487 113007  	adx ! col
+224.  488 412457  	jsr compare
+225.  489 110001  	adx# 1
+226.  48A 412457  	jsr compare
+227.  48B 110001  	adx# 1
+228.  48C 412457  	jsr compare
+229.  48D 153007  	sbx ! col
+230.  48E 412457  	jsr compare
+231.  48F 150001  	sbx# 1
+232.  490 402445  	jmp write
+233.              
+234.  491 153007  right:	sbx ! col
+235.  492 412457  	jsr compare
+236.  493 150001  	sbx# 1
+237.  494 412457  	jsr compare
+238.  495 113007  	adx ! col
+239.  496 412457  	jsr compare
+240.  497 113007  	adx ! col
+241.  498 412457  	jsr compare
+242.  499 110001  	adx# 1
+243.  49A 412457  	jsr compare
+244.  49B 153007  	sbx ! col
+245.  49C 402445  	jmp write
+246.              
+247.  49D 150001  bot:	sbx# 1
+248.  49E 412457  	jsr compare
+249.  49F 153007  	sbx ! col
+250.  4A0 412457  	jsr compare
+251.  4A1 110001  	adx# 1
+252.  4A2 412457  	jsr compare
+253.  4A3 110001  	adx# 1
+254.  4A4 412457  	jsr compare
+255.  4A5 113007  	adx ! col
+256.  4A6 412457  	jsr compare
+257.  4A7 150001  	sbx# 1
+258.  4A8 402445  	jmp write
+259.              
+260.  4A9 153007  left:	sbx ! col
+261.  4AA 412457  	jsr compare
+262.  4AB 110001  	adx# 1
+263.  4AC 412457  	jsr compare
+264.  4AD 113007  	adx ! col
+265.  4AE 412457  	jsr compare
+266.  4AF 113007  	adx ! col
+267.  4B0 412457  	jsr compare
+268.  4B1 150001  	sbx# 1
+269.  4B2 412457  	jsr compare
+270.  4B3 153007  	sbx ! col
+271.  4B4 402445  	jmp write
+272.              ;___________________________________
+273.  4B5 080042  askq:	psh# asklen
+274.  4B6 080512  	psh# ask
+275.  4B7 412E05  	jsr put_str
+276.  4B8 000003  	  lda# $03
+277.  4B9 712317  	outb display
+278.  4BA 702000  poll:	inb kbd_ctrl
+279.  4BB 4B24BA  	jge poll
+280.  4BC 702001  	inb kbd_data
+281.  4BD 712317  	outb display
+282.  4BE 200030  	cma# $30
+283.  4BF 4824C4  	jeq EOP
+284.  4C0 140030  	sba# $030
+285.  4C1 042529  	sta answ
+286.  4C2 120002  	ads# 2
+287.  4C3 FFF040  	rtn
+288.              
+289.              
+290.  4C4 4124F5  EOP:	jsr newline
+291.  4C5 08000F  	psh# end_len
+292.  4C6 08050D  	psh# endprompt
+293.  4C7 412E05  	jsr put_str
+294.  4C8 120002  	ads# 2
+295.  4C9 FFFFFF  	hlt
+296.              ;___________________________
+297.              	.equ newarr1, 3
+298.              	.equ col1, 4
+299.              	.equ row1, 5
+300.              	.equ oldarr1, 6
+301.  4CA FFF012  printcurr:	pshf
+302.  4CB FFF010  	psha
+303.  4CC FFF008  	tsf
+304.  4CD 000000  	lda# 0
+305.  4CE 04252A  	sta answind
+306.  4CF 01252A  printcurrs:	ldx answind
+307.  4D0 212529  	cmx answ
+308.  4D1 482507  	jeq endprint
+309.  4D2 4124F5  	jsr newline
+310.  4D3 712317  	outb display
+311.  4D4 08000C  	psh# gen_len
+312.  4D5 08052D  	psh# gen_count
+313.  4D6 412E05  	jsr put_str
+314.  4D7 120002  	ads# 2
+315.  4D8 50252B  	ldc gen_index
+316.  4D9 712317  	outb display
+317.  4DA 003004  	lda ! col1
+318.  4DB 183005  	mul ! row1
+319.  4DC 04252C  	sta size
+320.  4DD 010FFF  	ldx# $FFF
+321.  4DE 412402  	jsr generation
+322.  4DF 010000  	ldx# 0
+323.  4E0 21252C  print_loop:	cmx size
+324.  4E1 4824F1  	jeq increasegen
+325.  4E2 FFF003  	txa
+326.  4E3 1A3004  	mod ! col1
+327.  4E4 200000  	cma# 0
+328.  4E5 4824FE  	jeq nextline
+329.  4E6 009006  next1:	lda& ! oldarr1
+330.  4E7 200001  	cma# 1
+331.  4E8 482502  	jeq markstar
+332.  4E9 00002E  	lda# '.'
+333.  4EA 712317  	outb display
+334.  4EB 000020  	lda# ' '
+335.  4EC 712317  	outb display
+336.  4ED 009003  return:	lda& ! newarr1
+337.  4EE 049006  	sta& ! oldarr1
+338.  4EF 110001  	adx# 1
+339.  4F0 4024E0  	jmp print_loop
+340.  4F1 1B252B  increasegen:	inc gen_index
+341.  4F2 1B252A  	inc answind
+342.  4F3 010000  	ldx#0
+343.  4F4 4024CF  	jmp printcurrs
+344.              ;_____________________TIMER________________
+345.              ;	SIE
+346.              ;	lda reload
+347.              ;	outw tim_valu
+348.              ;	lda# reset_ready_bit + start_after_load
+349.              ;	outb tim_ctrl
+350.              ;looop:	inb tim_stat
+351.              ;	jge looop
+352.              ;	lda# reset_ready_bit
+353.              ;	outb tim_ctrl
+354.              ;	jmp looop
+355.              ;	
+356.              ;	jmp printcurrs	
+357.              	
+358.  4F5 00000D  newline:	lda# '\cr'
+359.  4F6 712317  	outb display
+360.  4F7 00000A  	lda# '\lf'
+361.  4F8 712317  	outb display
+362.  4F9 00000A  	lda# '\lf'
+363.  4FA 712317  	outb display
+364.  4FB 000002  	  lda# $02
+365.  4FC 712317  	outb display
+366.  4FD FFF040  	rtn	
+367.  4FE 4124F5  nextline:	jsr newline
+368.  4FF 000005  	  lda# $05
+369.  500 712317  	outb display
+370.  501 4024E6  	jmp next1
+371.  502 00002A  markstar:	lda# '*'
+372.  503 712317  	outb display
+373.  504 000020  	lda# ' '
+374.  505 712317  	outb display
+375.  506 4024ED  	jmp return
+376.              
+377.  507 4124F5  endprint:	jsr newline
+378.  508 FFF013  	popa
+379.  509 FFF015  	popf
+380.  50A FFF040  	rtn
+381.  50B 120001  kbd_int:	ads# 1
+382.  50C 4024CF  	jmp printcurrs
+383.              
+384.              
+385.  50D 456E64  endprompt:	.char 'End of program.',end_len
+      50E 206F66
+      50F 207072
+      510 6F6772
+      511 616D2E
+386.  512 486F77  ask:	.char 'How many new generations would you like to print (enter 0 to end)?',asklen
+      513 206D61
+      514 6E7920
+      515 6E6577
+      516 206765
+      517 6E6572
+      518 617469
+      519 6F6E73
+      51A 20776F
+      51B 756C64
+      51C 20796F
+      51D 75206C
+      51E 696B65
+      51F 20746F
+      520 207072
+      521 696E74
+      522 202865
+      523 6E7465
+      524 722030
+      525 20746F
+      526 20656E
+      527 64293F
+387.  528 002710  reload:	.word $002710 ;10k in hex 10k ms hopefully
+388.  529 000000  answ:	.word 0
+389.  52A 000000  answind:	.word 0
+390.  52B 000000  gen_index:	.word 0
+391.  52C 000000  size:	.word 0
+392.  52D 47656E  gen_count:	.char 'Generation: ',gen_len
+      52E 657261
+      52F 74696F
+      530 6E3A20
+393.              .equ @,$FF8
+394.  FF8 00050B  .word kbd_int
+
+                     SYMBOL TABLE CONTENTS
+
+00045E = ADDNEIGHBOUR    000529 = ANSW            00052A = ANSWIND         
+000512 = ASK             000008 = ASKAGAIN        000042 = ASKLEN          
+0004B5 = ASKQ            000475 = BLC             00049D = BOT             
+00047D = BRC             000007 = COL             000004 = COL1            
+000005 = COLS            000457 = COMPARE         00044E = DIES            
+000317 = DISPLAY         000080 = ENABLE_INTS     000460 = END             
+000507 = ENDPRINT        00050D = ENDPROMPT       00000F = END_LEN         
+0004C4 = EOP             000402 = GENERATION      00052D = GEN_COUNT       
+00052B = GEN_INDEX       00000C = GEN_LEN         0004F1 = INCREASEGEN     
+000000 = KBD_CTRL        000001 = KBD_DATA        00050B = KBD_INT         
+0004A9 = LEFT            000451 = LIVES           000405 = LOOP            
+000502 = MARKSTAR        000100 = NEW             000006 = NEWARR          
+000003 = NEWARR1         0004F5 = NEWLINE         00045C = NEXT            
+0004E6 = NEXT1           0004FE = NEXTLINE        000060 = OLD             
+00000B = OLDA            000009 = OLDARR          000006 = OLDARR1         
+0004BA = POLL            0004CA = PRINTCURR       0004CF = PRINTCURRS      
+0004E0 = PRINT_LOOP      000E05 = PUT_STR         000528 = RELOAD          
+000040 = RESET_READY_BIT 0004ED = RETURN          000491 = RIGHT           
+000008 = ROW             000005 = ROW1            000003 = ROWS            
+00052C = SIZE            000080 = STACK           000010 = START_AFTER_LOAD
+000454 = STAYS           000400 = TEMP            000030 = TIM_CTRL        
+000030 = TIM_STAT        000031 = TIM_VALU        000463 = TLC             
+000485 = TOP             000006 = TOT             000004 = TOTAL           
+000401 = TOTALN          00046B = TRC             000445 = WRITE           

@@ -1,0 +1,72 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.              ; p3
+  2.              	.equ @, $000
+  3.              	
+  4.  000 002100  	lda SIZE
+  5.  001 140001  	sba# 1
+  6.  002 042028  	sta LIMIT   ; set LIMIT = SIZE - 1
+  7.              
+  8.  003 01202B  LOOP1:	ldx I	; load I to XR 
+  9.  004 212028  	cmx LIMIT  ; compare I with LIMIT
+ 10.  005 4B2027  	jge end   ; If I >= LIMIT then jumpt to end
+ 11.  006 00202B  	lda I     ; load I to ACC
+ 12.  007 042029  	sta MIN_INDEX ; MIN_INDEX = I
+ 13.  008 100001  	ada# 1     ; ACC = ACC + 1
+ 14.  009 04202C  	sta J       ; J = ACC = I + 1
+ 15.              
+ 16.  00A 00202C  LOOP2:	lda J       ; ACC = J
+ 17.  00B 202028  	cma LIMIT   ; compare J to LIMIT
+ 18.  00C 4D2018  	jgt SWAP    ; If J > LIMIT jumpt to SWAP
+ 19.  00D 01202C  	ldx J       ; XR = J
+ 20.  00E 004101  	lda+ ARRAY    ; ACC = ARRAY[XR]
+ 21.  00F 012029  	ldx MIN_INDEX  ; XR = MIN_INDEX
+ 22.  010 204101  	cma+ ARRAY    ; compare ACC with ARRAY[XR]
+ 23.  011 4B2014  	jge INC_J     ;  if >=, jumpt to INC_J
+ 24.  012 00202C  	lda J        ; load J into ACC
+ 25.  013 042029  	sta MIN_INDEX  ; store ACC to MIN_INDEX
+ 26.  014 00202C  INC_J:	lda J          ; ACC = J
+ 27.  015 100001  	ada# 1         ; ACC = ACC + 1
+ 28.  016 04202C  	sta J          ; J = ACC
+ 29.  017 40200A  	jmp LOOP2     ; jumpt to loop 2
+ 30.              
+ 31.  018 01202B  SWAP:	ldx I        ; XR = I
+ 32.  019 004101  	lda+ ARRAY    ; ACC = ARRAY[XR]
+ 33.  01A 04202A  	sta TEMP      ; TEMP = ACC
+ 34.  01B 012029  	ldx MIN_INDEX  ; XR = MIN_INDEX
+ 35.  01C 004101  	lda+ ARRAY     ; ACC = ARRAY[XR]
+ 36.  01D 01202B  	ldx I          ; XR = I
+ 37.  01E 044101  	sta+ ARRAY     ; ARRAY[XR] = ACC
+ 38.  01F 00202A  	lda TEMP       ; ACC = TEMP
+ 39.  020 012029  	ldx MIN_INDEX ; XR = MIN_INDEX
+ 40.  021 044101  	sta+ ARRAY     ; ARRAY[XR] = ACC
+ 41.  022 402023  	jmp INC_I      ; jumpt to INC_I
+ 42.              
+ 43.  023 00202B  INC_I:	lda I
+ 44.  024 100001  	ada# 1
+ 45.  025 04202B  	sta I
+ 46.  026 402003  	jmp LOOP1
+ 47.              
+ 48.  027 FFFFFF  end:	hlt
+ 49.              
+ 50.  028 000000  LIMIT:	.word 0
+ 51.  029 000000  MIN_INDEX:	.word 0
+ 52.  02A 000000  TEMP: 	.word 0
+ 53.  02B 000000  I:	.word 0
+ 54.  02C 000000  J:	.word 0
+ 55.              
+ 56.              	.equ	@,$100
+ 57.  100 000006  SIZE:	.word 6
+ 58.  101 000064  ARRAY:	.word 100
+ 59.  102 00004A  	.word 74
+ 60.  103 FFFF70  	.word -144
+ 61.  104 002726  	.word 10022
+ 62.  105 000291  	.word 657
+ 63.  106 FFFFDF  	.word -33
+
+                     SYMBOL TABLE CONTENTS
+
+000101 = ARRAY           000027 = END             00002B = I               
+000023 = INC_I           000014 = INC_J           00002C = J               
+000028 = LIMIT           000003 = LOOP1           00000A = LOOP2           
+000029 = MIN_INDEX       000100 = SIZE            000018 = SWAP            
+00002A = TEMP            

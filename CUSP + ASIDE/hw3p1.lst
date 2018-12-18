@@ -1,0 +1,43 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.              	.equ	@,$000	
+  2.  000 002014  	lda NUM
+  3.  001 140001  	sba# 1
+  4.  002 102015  	ada BASE
+  5.  003 042011  	sta maxINDEX
+  6.              	
+  7.  004 002015  	lda BASE
+  8.  005 042012  	sta INDEX
+  9.              
+ 10.  006 012012  LOOP:	ldx INDEX
+ 11.  007 152015  	sbx BASE
+ 12.  008 004016  	lda+ ARR
+ 13.  009 202013  	cma BIG
+ 14.  00A 4C200C  	jle INC_INDEX
+ 15.  00B 042013  	sta BIG
+ 16.  00C 1B2012  INC_INDEX:	inc INDEX
+ 17.  00D 002012  	lda INDEX
+ 18.  00E 202011  	cma maxINDEX
+ 19.  00F 4C2006  	jle LOOP
+ 20.  010 FFFFFF  	hlt
+ 21.              
+ 22.  011 000000  maxINDEX:	.word 0
+ 23.  012 000000  INDEX:	.word 0
+ 24.  013 FFFFFF  BIG:	.word -1
+ 25.              
+ 26.  014 000006  NUM:	.word 6
+ 27.  015 000005  BASE:	.word 5
+ 28.  016 000011  ARR:	.word 17
+ 29.  017 000005  	.word 5		 
+ 30.  018 00000A  	.word 10
+ 31.  019 00001E  	.word 30
+ 32.  01A 000007  	.word	7
+ 33.  01B 000009  	.word 9
+ 34.              	
+ 35.              
+ 36.              
+
+                     SYMBOL TABLE CONTENTS
+
+000016 = ARR             000015 = BASE            000013 = BIG             
+00000C = INC_INDEX       000012 = INDEX           000006 = LOOP            
+000011 = MAXINDEX        000014 = NUM             

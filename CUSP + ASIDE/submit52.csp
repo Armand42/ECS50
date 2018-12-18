@@ -1,0 +1,82 @@
+	.equ @, $000
+	.equ stack, $300
+	
+	lds# stack
+	ldf# 0
+	ldx# 0
+	psh# $020 ; address of array
+	psh# strlen
+	psh# $029  ; address of the result
+	jsr title
+	ads# 3
+	hlt
+
+	.equ @, $020
+inputString:  .char  '  lEArN  iN 30 yeaRS !e',strlen
+	.equ @, $029
+outputString:	.blkw 9, 0 ; there are 25 characters, need 9 blocks
+
+; stack = [input, strlen, output, PC, FP] THIS IS JUST HERE TO REMEMBER THE POSITIONS OF EACH PARAMETER
+	.equ @, $100
+	.equ in, 4    ; A is position of array in stack
+	.equ size, 3
+	.equ out, 2
+	
+
+title: 	pshf ; [$010, strlen, $030, PC, FP]
+	tsf 
+
+loop:	ldx x
+	cmx ! size ; compare XR with strlen
+	jge end
+	ldc* ! in   ; load the XR position in inputString 
+	stc* ! out
+	ldx# 0
+	stc current_char
+	
+	; if x == 0, go to toUpper
+	ldx x
+	cmx# 0
+	jeq toUpper
+	; if previous_char == ' ', go to toUpper
+	ldx# 0
+	ldc previous_char
+	cma# ' '
+	jeq toUpper
+	
+	; if current_char is upper, set it to lower
+	ldx# 0
+	ldc current_char
+	cma# 'A'
+	jlt next
+	cma# 'Z'
+	jgt next
+	ada# 'a'-'A'
+	ldx x
+	stc* ! out
+	jmp next
+
+toUpper:	ldx# 0
+	ldc current_char
+	cma# 'a'
+	jlt next
+	cma# 'z'
+	jgt next
+	sba# 'a'-'A'
+	ldx x
+	stc* ! out
+
+next:	ldx# 0
+	ldc current_char
+	stc previous_char
+	ldx x
+	adx# 1
+	stx x
+	jmp loop
+
+end:	popf ; pop FP    [array, m, n, arrayT, PC]
+	rtn   
+	
+x: .word 0 ; save the XR
+previous_char: .blkw 1, 0
+current_char: .blkw 1, 0

@@ -1,0 +1,51 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.              ; main program
+  2.              	.equ @, $000
+  3.              	.equ stack,$040	; make a stack
+  4.  000 020040  	lds# stack	; load stack pointer with 40
+  5.  001 030000  	ldf# 0	; load frame pointer with 0
+  6.  002 082008  	psh main_base	; order does not matter
+  7.  003 082009  	psh main_exp	
+  8.  004 412020  	jsr power
+  9.  005 120002  	ads# 2	; add 2 to stack pointer IMPORTANT
+ 10.              	
+ 11.  006 04200A  	sta answer
+ 12.  007 FFFFFF  	hlt
+ 13.              
+ 14.  008 000003  main_base:	.word 3
+ 15.  009 000004  main_exp:	.word 4
+ 16.  00A FFFFFF  answer:	.word -1
+ 17.              
+ 18.              ; power subroutine
+ 19.              	.equ @,$020
+ 20.              	.equ base,3
+ 21.              	.equ exp,2
+ 22.              
+ 23.  020 FFF012  power:	pshf		; push frame pointer onto the stack so we dont lose value of the frame pointer
+ 24.  021 FFF008  	tsf
+ 25.  022 000001  	lda# 1
+ 26.  023 04202F  	sta temp
+ 27.              	
+ 28.  024 003002  loop:	lda ! exp
+ 29.  025 200000  	cma# 0
+ 30.  026 4C202C  	jle end
+ 31.              
+ 32.  027 00202F  	lda temp
+ 33.  028 183003  	mul ! base
+ 34.  029 04202F  	sta temp
+ 35.              
+ 36.  02A 1C3002  	dec ! exp
+ 37.  02B 402024  	jmp loop
+ 38.              
+ 39.  02C 00202F  end:	lda temp
+ 40.  02D FFF015  	popf		; pop from stack into the frame pointer
+ 41.  02E FFF040  	rtn
+ 42.              
+ 43.  02F 000000  temp:	.word
+
+                     SYMBOL TABLE CONTENTS
+
+00000A = ANSWER          000003 = BASE            00002C = END             
+000002 = EXP             000024 = LOOP            000008 = MAIN_BASE       
+000009 = MAIN_EXP        000020 = POWER           000040 = STACK           
+00002F = TEMP            

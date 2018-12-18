@@ -1,0 +1,28 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.  000 010000  	ldx#	0
+  2.  001 502010  	ldc oldString
+  3.  002 51201A  	stc previous
+  4.  003 010001  	ldx# 1
+  5.  004 502010  	ldc oldString
+  6.  005 010000  	ldx# 0
+  7.  006 51201B  	stc current
+  8.  007 50201A  	ldc previous
+  9.  008 51201B  	stc current
+ 10.              	
+ 11.              
+ 12.  009 FFFFFF  end:	hlt
+ 13.              	.equ @,$010
+ 14.  010 686920  oldString:	.char 'hi how 012345',strlen	       ; not a variable just a symbol so you need immediate addressing
+      011 686F77
+      012 203031
+      013 323334
+      014 352020
+ 15.              	.equ @,$015
+ 16.  015 000000  newString:	.blkw 5,0
+ 17.  01A 000000  previous: 	.blkw 1, 0
+ 18.  01B 000000  current:	.blkw 1, 0
+
+                     SYMBOL TABLE CONTENTS
+
+00001B = CURRENT         000009 = END             000015 = NEWSTRING       
+000010 = OLDSTRING       00001A = PREVIOUS        00000D = STRLEN          

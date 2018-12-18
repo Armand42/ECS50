@@ -1,0 +1,59 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.              	.equ @, $000
+  2.  000 002101  	lda SIZE
+  3.  001 140001  	sba# 1
+  4.  002 04201D  	sta R
+  5.              
+  6.  003 00201C  LOOP:	lda L
+  7.  004 20201D  	cma R
+  8.  005 4B201A  	jge END
+  9.  006 00201C  	lda L
+ 10.  007 10201D  	ada R
+ 11.  008 190002  	div# 2
+ 12.  009 04201E  	sta M
+ 13.  00A 01201E  	ldx M
+ 14.  00B 004102  	lda+ SORTED
+ 15.  00C 202100  	cma TARGET
+ 16.  00D 4D2012  	jgt ELSE1
+ 17.  00E 4A2016  	jlt ELSE2
+ 18.  00F 000001  	lda# 1
+ 19.  010 04201F  	sta OUTPUT
+ 20.  011 40201A  	jmp END
+ 21.              
+ 22.  012 00201E  ELSE1:	lda M 
+ 23.  013 140001  	sba# 1
+ 24.  014 04201D  	sta R
+ 25.  015 402003  	jmp LOOP
+ 26.              	
+ 27.  016 00201E  ELSE2:	lda M
+ 28.  017 100001  	ada# 1
+ 29.  018 04201C  	sta L
+ 30.  019 402003  	jmp LOOP
+ 31.              
+ 32.              
+ 33.  01A 00201F  END:	lda OUTPUT
+ 34.  01B FFFFFF  	hlt
+ 35.              
+ 36.  01C 000000  L:	.word 0
+ 37.  01D 000000  R:	.word 0
+ 38.  01E 000000  M:	.word 0
+ 39.  01F 000000  OUTPUT:	.word 0
+ 40.              	
+ 41.              
+ 42.              	.equ @,$100
+ 43.  100 00006D  TARGET:	.word 109
+ 44.  101 000006  SIZE:	.word 6
+ 45.  102 FFFEA7  SORTED:	.word -345
+ 46.  103 FFFF9E  	.word -98
+ 47.  104 00006D  	.word 109
+ 48.  105 000613  	.word 1555
+ 49.  106 0018BC  	.word 6332
+ 50.  107 0081AA  	.word 33194
+ 51.              
+
+                     SYMBOL TABLE CONTENTS
+
+000012 = ELSE1           000016 = ELSE2           00001A = END             
+00001C = L               000003 = LOOP            00001E = M               
+00001F = OUTPUT          00001D = R               000101 = SIZE            
+000102 = SORTED          000100 = TARGET          

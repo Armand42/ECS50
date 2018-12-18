@@ -1,0 +1,51 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.              ;timer 
+  2.              	.equ crt_data,$317
+  3.              	.equ tim_ctrl,$030
+  4.              	.equ tim_stat,$030
+  5.              	.equ tim_valu,$031
+  6.              	.equ bell,$07
+  7.              	.equ reset_ready_bit,$40
+  8.              	.equ start_after_load,$10
+  9.              	.equ put_str,$E05
+ 10.              
+ 11.  000 002011  main:	lda reload
+ 12.  001 732031  	outw tim_valu
+ 13.  002 000050  	lda# reset_ready_bit + start_after_load
+ 14.  003 712030  	outb tim_ctrl
+ 15.              
+ 16.  004 000007  print:	lda# bell
+ 17.  005 712317  	outb crt_data
+ 18.  006 080016  	psh# msg1_len
+ 19.  007 080012  	psh# msg1	
+ 20.  008 412E05  	jsr put_str
+ 21.  009 120002  	ads# 2
+ 22.  00A 702030  loop:	inb tim_stat
+ 23.  00B 4B200A  	jge loop
+ 24.  00C 000040  	lda# reset_ready_bit
+ 25.  00D 712030  	outb tim_ctrl
+ 26.  00E 000001  	lda# $01
+ 27.  00F 712316  	outb $316
+ 28.  010 402004  	jmp print
+ 29.              
+ 30.  011 004000  reload:	.word $004000
+ 31.  012 617265  msg1:	.char 'are you annoyed yet?\cr\lf', msg1_len
+      013 20796F
+      014 752061
+      015 6E6E6F
+      016 796564
+      017 207965
+      018 743F0D
+      019 0A2020
+      01A FFFFFFFFFFFFFFFF
+ 32.              	.end
+ 33.              
+ 34.              
+
+                     SYMBOL TABLE CONTENTS
+
+000007 = BELL            000317 = CRT_DATA        00000A = LOOP            
+000000 = MAIN            000012 = MSG1            000016 = MSG1_LEN        
+000004 = PRINT           000E05 = PUT_STR         000011 = RELOAD          
+000040 = RESET_READY_BIT 000010 = START_AFTER_LOAD000030 = TIM_CTRL        
+000030 = TIM_STAT        000031 = TIM_VALU        

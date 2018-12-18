@@ -1,0 +1,9 @@
+lda# $018
+sta $007
+inc $007
+cma $008
+jlt $006
+inc $007
+hlt
+.word $040550
+.word $000012
