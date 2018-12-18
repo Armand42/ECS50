@@ -1,0 +1,42 @@
+8 subroutines
+1 left hand column
+1 right hand calumn
+top and bottom
+4
+one for each of the corners
+
+Status for every other cell thats not corners or the sides
+
+index of currcell
+- # columns = top
+top +1
+top -1
+currcell +- 1
+currcell + #column = bottom
+bottom +-1
+neighbourcounter ++
+
+Status for currcell to see if Alive or Dead
+
+0,1,3+ currcell = 0
+2 = stays the same
+3 currcell = 1
+
+multiple jumps to different subroutines
+Corners for Alive Neighbors:
+
+top left xr = 0, +1, + column, + column+1
+top right xr = column, -1, +column, +column-1
+bottom left = column*row - column, -column, -column +1, +1
+bottom right = column*row -1, -1, -column, -column -1
+
+sides:
+Top: if xr < col && not the corners
+check -1, +1, + col, +col -1, +col +1
+
+
+0 0 0 0 0
+1 0 0 0 1
+1 1 1 1 1 
+0 0 1 0 0
+0 1 1 1 1 

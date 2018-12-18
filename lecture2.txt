@@ -1,0 +1,11 @@
+Lecture #2
+
+Compute the sum of sqaures from all the integers 1 to N
+
+int counter = 1
+int n = 5
+int sum = 0
+while (counter <= n) {
+    sum+= pow(counter,2);
+    counter++;
+}

@@ -1,0 +1,27 @@
+#include <iostream>
+
+using namespace std;
+
+
+
+int main() {
+    // 3*4 = 4 + 4 + 4 
+    // m*n
+    
+    int result = 0;
+    int m = 0;
+    int n = 0;
+
+    cout <<  "Enter a number:  " << endl;
+    cin >> m;
+    cout << "Enter in n: " << endl;
+    cin >> n;
+    
+    for (int i = 0; i < n; i++) {
+        result += m;
+    } 
+     
+    cout << result << endl;
+
+    return 0;
+}
